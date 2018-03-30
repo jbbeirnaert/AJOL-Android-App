@@ -3,27 +3,32 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/list_item">
 
     <ImageView
-        android:id="@+id/photoPreview"
+        android:id="@+id/photo_preview"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_alignParentTop="true"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginVertical="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop = "16dp"
+        android:layout_marginBottom="16dp"
         android:adjustViewBounds="true"
         android:cropToPadding="false"
-        app:srcCompat="@drawable/noimage" />
+        app:srcCompat="@drawable/noimage"/>
 
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_alignTop="@+id/photoPreview"
+        android:layout_alignTop="@+id/photo_preview"
         android:layout_margin="8dp"
-        android:text="Name"
+        android:text="@string/no_name"
         android:textSize="18sp" />
 
     <Button
@@ -31,20 +36,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_alignBottom="@+id/photoPreview"
+        android:layout_alignBottom="@+id/photo_preview"
         android:layout_marginTop="8dp"
-        android:layout_marginHorizontal="8dp"
-        android:text="Edit" />
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/edit" />
 
     <Button
-        android:id="@+id/deleteButton"
+        android:id="@+id/delete_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/photoPreview"
+        android:layout_alignBottom="@+id/photo_preview"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
+        android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginVertical="16dp"
-        android:text="Delete" />
-
+        android:text="@string/delete" />
 </RelativeLayout>
