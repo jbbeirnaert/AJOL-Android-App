@@ -9,11 +9,11 @@ Ajol Paper is an android mobile application that allows the user to customize th
 			- [ ] search bar
 			- [ ] navigation menu
 		- [ ] list item
-			- [ ] wallpaper name
-			- [ ] image
+			- [x] wallpaper name
+			- [x] image
 			- [ ] radius
-			- [ ] edit button
-			- [ ] delete button
+			- [x] edit button
+			- [x] delete button
 		- [ ] list-empty view
 		- [ ] scrollable
 - [ ] Editor Layout
