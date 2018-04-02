@@ -3,9 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AjolPaper.iml" filepath="$PROJECT_DIR$/AjolPaper.iml" />
-      <module fileurl="file://C:\Users\Linh Tran Dang\Desktop\AJOL\AJOL-Android-App\AjolPaper\AjolPaper.iml" filepath="C:\Users\Linh Tran Dang\Desktop\AJOL\AJOL-Android-App\AjolPaper\AjolPaper.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://C:\Users\Linh Tran Dang\Desktop\AJOL\AJOL-Android-App\AjolPaper\app\app.iml" filepath="C:\Users\Linh Tran Dang\Desktop\AJOL\AJOL-Android-App\AjolPaper\app\app.iml" />
     </modules>
   </component>
 </project>

@@ -4,4 +4,7 @@
     <string name="no_name">No Name</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="save">Save</string>
+    <string name="choose">Choose picture</string>
+    <string name="radius">Radius</string>
 </resources>

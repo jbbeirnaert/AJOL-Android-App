@@ -1,6 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/list_item">
 
-</LinearLayout>
+    <include layout="@layout/activity_settings_map"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/include" />
+
+    <ImageView
+        android:id="@+id/photo_preview"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignBottom="@+id/save_button"
+        android:layout_alignTop="@+id/choose_button"
+        android:layout_marginStart="70dp"
+        android:layout_toEndOf="@+id/choose_button" />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/include"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="22dp"
+        android:text="@string/no_name"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/radius"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/radius"
+        android:textSize="18sp"
+        android:layout_marginTop="10dp"
+        android:layout_alignStart="@id/name"
+        android:layout_below="@+id/name"/>
+
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/save"
+        android:layout_alignStart="@id/choose_button"
+        android:layout_below="@id/choose_button"/>
+        <!--android:layout_alignBottom="@+id/photo_preview"/>-->
+
+    <Button
+        android:id="@+id/choose_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/name"
+        android:layout_below="@id/radius"
+        android:layout_marginVertical="16dp"
+        android:text="@string/choose" />
+</RelativeLayout>
