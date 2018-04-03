@@ -9,4 +9,11 @@
     <string name="save">Save</string>
     <string name="choose">Choose picture</string>
     <string name="radius">Radius</string>
+
+    <string name="buttonGoToWallPaper">Look at all the wallpapers</string>
+    <string name="buttonGoToDefault">Look at all the default pictures</string>
+    <string name="tvRefreshTime">Refresh Time (min)</string>
+    <string name="etRefreshTime">30</string>
+    <string name="tvDefault">Use default pictures</string>
+    <string name="buttonSave">Save</string>
 </resources>
