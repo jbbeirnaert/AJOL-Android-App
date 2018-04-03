@@ -19,10 +19,17 @@ Ajol Paper is an android mobile application that allows the user to customize th
 		- [ ] list-empty view
 		- [ ] scrollable
 	- [x] modify layout
-		- [ ] include map
+		- [x] include map
 		- [ ] wallpaper info
+	- [ ] link activities together
+		- [ ] settings -> modify
+		- [ ] settings -> list
+		- [ ] list -> settings
+		- [ ] list -> modify
+		- [ ] modify -> settings
+		- [ ] modify -> list
 - [ ] Persistent Storage
 - [ ] Background App
 - [ ] Device Location Integration
 	- [x] ask permission in activity
-	- [ ] google maps api key
+	- [x] google maps api key
