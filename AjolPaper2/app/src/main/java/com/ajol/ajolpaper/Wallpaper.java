@@ -11,14 +11,15 @@ import java.util.Vector;
 public class Wallpaper {
     public ImageFormat image;
     public String name;
-    public Vector<Double> location = new Vector<Double>(2);
+    public double x;
+    public double y;
     public double radius;
 
     public Wallpaper(String name) {
         this.image = null;
         this.name = name;
-        this.location.set(0,0.0);
-        this.location.set(1,0.0);
+        this.x = 0;
+        this.y = 0;
         this.radius = 0;
     }
 }
