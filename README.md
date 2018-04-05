@@ -3,9 +3,13 @@ Ajol Paper is an android mobile application that allows the user to customize th
 
 ## Tasks
 - [ ] User Interface
-	- [ ] main/settings layout
+	- [x] main/settings layout
 		- [x] include map
-		- [ ] ...
+		- [x] defaults toggle
+		- [x] refresh time input field
+		- [x] wallpapers button
+		- [x] defaults button
+		- [x] save button
 	- [ ] list layout
 		- [ ] toolbar
 			- [ ] search bar
@@ -17,10 +21,12 @@ Ajol Paper is an android mobile application that allows the user to customize th
 			- [x] edit button
 			- [x] delete button
 		- [ ] list-empty view
-		- [ ] scrollable
+		- [x] scrollable
+		- [ ] clickable
 	- [x] modify layout
 		- [x] include map
-		- [ ] wallpaper info
+		- [x] wallpaper info
+		- [x] save button
 	- [ ] link activities together
 		- [ ] settings -> modify
 		- [ ] settings -> list
@@ -29,6 +35,10 @@ Ajol Paper is an android mobile application that allows the user to customize th
 		- [ ] modify -> settings
 		- [ ] modify -> list
 - [ ] Persistent Storage
+- [ ] Enable UI buttons
+	- [ ] settings
+	- [ ] list
+	- [ ] modify
 - [ ] Background App
 - [ ] Device Location Integration
 	- [x] ask permission in activity
