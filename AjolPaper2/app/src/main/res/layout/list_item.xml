@@ -8,16 +8,17 @@
 
     <ImageView
         android:id="@+id/photo_preview"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="100dp"
+        android:layout_height="160dp"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:adjustViewBounds="true"
+        android:background="@android:color/darker_gray"
         android:cropToPadding="false"
         android:visibility="visible"
         app:srcCompat="@drawable/noimage" />
@@ -28,8 +29,19 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/photo_preview"
         android:layout_centerInParent="true"
-        android:layout_margin="8dp"
+        android:layout_margin="16dp"
         android:text="@string/no_name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/radius"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/photo_preview"
+        android:layout_centerInParent="true"
+        android:layout_margin="16dp"
+        android:text="@string/radius"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:visibility="visible" />
 
@@ -37,7 +49,8 @@
         android:id="@+id/edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_alignBottom="@+id/photo_preview"
         android:layout_marginTop="8dp"
         android:layout_marginStart="8dp"
@@ -48,7 +61,7 @@
         android:id="@+id/delete_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/photo_preview"
+        android:layout_alignTop="@+id/photo_preview"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginStart="16dp"
