@@ -20,6 +20,9 @@
     Once you have your key (it starts with "AIza"), replace the "google_maps_key"
     string in this file.
     -->
-    <!--Owen: I created a new project AjolPaper with my google account and created the api key for it-->
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyA97XBIzXrPd5YCl27RNFN9t4jd7zrKC84</string>
+
+    <!--Owen's api key: AIzaSyDQIOiLlW48eoiaoKR3wMHAvCDWa4dTuRg -->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDQIOiLlW48eoiaoKR3wMHAvCDWa4dTuRg</string>
+
+    <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyA97XBIzXrPd5YCl27RNFN9t4jd7zrKC84</string>-->
 </resources>
