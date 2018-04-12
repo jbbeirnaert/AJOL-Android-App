@@ -1,7 +1,14 @@
 package com.ajol.ajolpaper;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Switch;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -18,6 +25,14 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
     public static final String WALLPAPER_BUNDLE_IMG = "img";
 
     private GoogleMap mMap;
+    private Button myBGoToWallPaper;
+    private Button myBGoToDefault;
+    private EditText myEtRefreshTime;
+    private Switch mySwitchDefault;
+    private Button myButtonSave;
+    private SharedPreferences preferences;
+
+    public final String IS_GOING_TO_DEFAULT = "isGoingToDefault";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +43,57 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        myBGoToWallPaper = findViewById(R.id.buttonGoToWallPaper);
+        myBGoToDefault = findViewById(R.id.buttonGoToDefault);
+        myEtRefreshTime = findViewById(R.id.etRefreshTime);
+        mySwitchDefault = findViewById(R.id.switchDefault);
+        myButtonSave = findViewById(R.id.buttonSave);
+
+        preferences = getSharedPreferences("preferences", MODE_PRIVATE);
+
+        myEtRefreshTime.setText(String.valueOf(preferences.getInt("refreshTime", 30)));
+        mySwitchDefault.setChecked(preferences.getBoolean("useDefault", true));
+
+
+
+        myBGoToWallPaper.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), WallpaperListActivity.class);
+                intent.putExtra(IS_GOING_TO_DEFAULT, false);
+                startActivity(intent);
+            }
+        });
+
+        myBGoToDefault.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), WallpaperListActivity.class);
+                intent.putExtra(IS_GOING_TO_DEFAULT, true);
+                startActivity(intent);
+            }
+        });
+
+        myButtonSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SharedPreferences.Editor editor = preferences.edit();
+                int refreshTime;
+                try{
+                    refreshTime = Integer.parseInt(myEtRefreshTime.getText().toString());
+                }catch (Exception e)
+                {
+                    refreshTime = 30;
+                }
+                editor.putInt("refreshTime", refreshTime);
+                editor.putBoolean("useDefault", mySwitchDefault.isChecked());
+                editor.apply();
+                Toast toast = Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        });
     }
 
     /**
