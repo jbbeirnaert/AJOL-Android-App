@@ -14,6 +14,26 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * Created by owengallagher on 3/29/18.
  */
 
+//Owen: HEY LINH! See this tutorial I found for an example of pulling images from the gallery: http://www.itcuties.com/android/pick-image-from-gallery/
+    /*
+
+    Here's what I learned so far:
+
+    //open camera or gallery with implicit intent
+    startActivityForResult(intent, LOAD_IMAGE_RESULTS);
+
+    //handle returned image
+    onActivityResult(...) {
+        super(...);
+
+        Uri pickedImage = data.getData(); // I think we can store this uri in the database to refer to an image!
+
+        //store pickedImage in database
+        ...
+    }
+
+     */
+
 public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
 

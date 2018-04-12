@@ -1,12 +1,7 @@
 package com.ajol.ajolpaper;
 
-import android.content.Context;
-import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,6 +11,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class SettingsActivity extends FragmentActivity implements OnMapReadyCallback {
+    public static final String WALLPAPER_BUNDLE_NAME = "name";
+    public static final String WALLPAPER_BUNDLE_X = "x";
+    public static final String WALLPAPER_BUNDLE_Y = "y";
+    public static final String WALLPAPER_BUNDLE_R = "r";
+    public static final String WALLPAPER_BUNDLE_IMG = "img";
+
     private GoogleMap mMap;
 
     @Override
@@ -23,15 +24,10 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
-
     }
 
     /**

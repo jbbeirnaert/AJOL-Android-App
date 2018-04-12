@@ -9,14 +9,14 @@ import java.util.Vector;
  */
 
 public class Wallpaper {
-    public ImageFormat image;
+    public String imageUri;
     public String name;
     public double x;
     public double y;
     public double radius;
 
     public Wallpaper(String name) {
-        this.image = null;
+        this.imageUri = null;
         this.name = name;
         this.x = 0;
         this.y = 0;

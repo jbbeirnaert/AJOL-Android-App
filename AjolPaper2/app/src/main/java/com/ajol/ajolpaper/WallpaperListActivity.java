@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,7 +25,7 @@ public class WallpaperListActivity extends AppCompatActivity {
     private SQLiteDatabase db;
     private DatabaseLinker dbLinker; //Owen: this creates the database and links it to the activity
 
-    String[] wallpapersBind = {
+    public static final String[] wallpapersBind = {
             DatabaseConstants._id,
             DatabaseConstants.COLUMN_NAME,
             DatabaseConstants.COLUMN_X,
@@ -33,13 +34,13 @@ public class WallpaperListActivity extends AppCompatActivity {
             DatabaseConstants.COLUMN_IMG
     };
 
-    String[] wallpapersProjection = {
+    public static final String[] wallpapersProjection = {
             DatabaseConstants.COLUMN_NAME,
             DatabaseConstants.COLUMN_RADIUS
             //DatabaseConstants.COLUMN_IMG      Owen: to be added when photos are supported
     };
 
-    int[] wallpapersMappings = {
+    public static final int[] wallpapersMappings = {
             R.id.name,
             R.id.radius
             //R.id.photo_preview            Owen: to be added when photos are supported
@@ -69,18 +70,27 @@ public class WallpaperListActivity extends AppCompatActivity {
                 //this should store the wallpaper from wallpapers[] in selected
                 Cursor selected = (Cursor) listView.getItemAtPosition(position);
                 String selectedName = selected.getString(selected.getColumnIndex(DatabaseConstants.COLUMN_NAME));
+                Double selectedX = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_X));
+                Double selectedY = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_Y));
+                Double selectedR = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_RADIUS));
+                String selectedInfo = selectedName + " (" + selectedX + "," + selectedY + ")*" + selectedR;
 
                 //create intent to start ModifyActivity
-//                Intent editIntent = new Intent(getApplicationContext(), ModifyActivity.class);
+                Intent editIntent = new Intent(getApplicationContext(), ModifyActivity.class);
 
                 //pass the wallpaper that needs to be modified to the intent
-//                editIntent.putExtra("wallpaper", WALLPAPER_DATA);
+                Bundle wallpaperBundle = new Bundle();
+                wallpaperBundle.putString(SettingsActivity.WALLPAPER_BUNDLE_NAME,selectedName);
+                wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_X,selectedX);
+                wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_Y,selectedY);
+                wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_R,selectedR);
+
+                editIntent.putExtras(wallpaperBundle);
 
                 //start ModifyActivity
-//                startActivity(editIntent);
+                startActivity(editIntent);
 
-                Toast toast = Toast.makeText(getApplicationContext(),"I want to modify " + selectedName,Toast.LENGTH_SHORT);
-                toast.show();
+//                Toast.makeText(getApplicationContext(),"I want to modify: " + selectedInfo,Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -94,6 +104,7 @@ public class WallpaperListActivity extends AppCompatActivity {
     }
 
     //Owen: for testing add 5 example wallpapers
+    //Owen: NOTE that this does not satisfy the assumption that all wallpaper names are unique
     public void populateWallpapers(int n) {
         if (wallpapersCursor.getCount() < n) {
             Toast.makeText(getApplicationContext(),"Populating wallpapers table!",Toast.LENGTH_SHORT).show();
@@ -103,14 +114,14 @@ public class WallpaperListActivity extends AppCompatActivity {
                 values.put(DatabaseConstants.COLUMN_NAME, String.valueOf(i));
                 values.put(DatabaseConstants.COLUMN_X, (double) i * 100);
                 values.put(DatabaseConstants.COLUMN_Y, (double) i * 100 + 100);
-                values.put(DatabaseConstants.COLUMN_RADIUS, (double) i * 10);
+                values.put(DatabaseConstants.COLUMN_RADIUS, (double) i * 10 + 10);
                 values.put(DatabaseConstants.COLUMN_IMG, (long) i * 1000);
 
                 db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
             }
         }
         else {
-            Toast.makeText(getApplicationContext(),"Not populating wallpapers table!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),"Wallpapers table already populated!",Toast.LENGTH_SHORT).show();
         }
 
         //update wallpapers list
