@@ -32,7 +32,7 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
     private Button myButtonSave;
     private SharedPreferences preferences;
 
-    public final String IS_GOING_TO_DEFAULT = "isGoingToDefault";
+    public static final String IS_GOING_TO_DEFAULT = "isGoingToDefault";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,6 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
 
         myEtRefreshTime.setText(String.valueOf(preferences.getInt("refreshTime", 30)));
         mySwitchDefault.setChecked(preferences.getBoolean("useDefault", true));
-
 
 
         myBGoToWallPaper.setOnClickListener(new View.OnClickListener() {
@@ -114,7 +113,4 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
-
-
-
 }
