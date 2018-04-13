@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -18,6 +21,8 @@ import android.widget.Toast;
  */
 
 public class WallpaperListActivity extends AppCompatActivity {
+    private Toolbar listToolbar;
+
     Cursor wallpapersCursor;
     SimpleCursorAdapter wallpapersCursorAdapter;
     ListView wallpapersView;
@@ -51,9 +56,20 @@ public class WallpaperListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
+        //use toolbar in activity_list as the action bar
+        listToolbar = findViewById(R.id.list_toolbar);
+        setSupportActionBar(listToolbar);
+
         //connect to database
         dbLinker = new DatabaseLinker(getApplicationContext());
         db = dbLinker.getWritableDatabase();
+
+        //handle whether the list should pull from defaults or from wallpapers
+        Intent incomingIntent = getIntent();
+        if (incomingIntent.getExtras().getBoolean(SettingsActivity.IS_GOING_TO_DEFAULT)) {
+            //pull from defaults
+            Toast.makeText(getApplicationContext(),"TO DO: pull from defaults table!",Toast.LENGTH_SHORT).show();
+        }
 
         //read wallpapers in from database to fill wallpapers[]
         wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, wallpapersBind, null, null, null, null, null, null);
@@ -89,12 +105,35 @@ public class WallpaperListActivity extends AppCompatActivity {
 
                 //start ModifyActivity
                 startActivity(editIntent);
-
-//                Toast.makeText(getApplicationContext(),"I want to modify: " + selectedInfo,Toast.LENGTH_SHORT).show();
             }
         });
 
         populateWallpapers(5);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.appbar_search);
+        SearchView searchView = (SearchView) searchItem.getActionView(); //Owen: see this to set searchable configuration: https://developer.android.com/training/search/setup.html#create-sc
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //Handle toolbar item clicks
+        int id = item.getItemId();
+
+        if (id == R.id.appbar_settings) {
+            Intent settingsIntent = new Intent(getApplicationContext(),SettingsActivity.class);
+
+            startActivity(settingsIntent);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -107,8 +146,6 @@ public class WallpaperListActivity extends AppCompatActivity {
     //Owen: NOTE that this does not satisfy the assumption that all wallpaper names are unique
     public void populateWallpapers(int n) {
         if (wallpapersCursor.getCount() < n) {
-            Toast.makeText(getApplicationContext(),"Populating wallpapers table!",Toast.LENGTH_SHORT).show();
-
             for (int i = 0; i < n; i++) {
                 ContentValues values = new ContentValues();
                 values.put(DatabaseConstants.COLUMN_NAME, String.valueOf(i));
@@ -119,9 +156,6 @@ public class WallpaperListActivity extends AppCompatActivity {
 
                 db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
             }
-        }
-        else {
-            Toast.makeText(getApplicationContext(),"Wallpapers table already populated!",Toast.LENGTH_SHORT).show();
         }
 
         //update wallpapers list
@@ -136,10 +170,4 @@ public class WallpaperListActivity extends AppCompatActivity {
         String output = "I want to add a wallpaper!";
         Toast.makeText(getApplicationContext(),output,Toast.LENGTH_SHORT).show();
     }
-
-    //Owen: this method fires when the delete button in the wallpapersView is clicked. CURRENTLY BROKEN
-//    public void deleteWallpaper(View view) {
-//        String output = "I want to delete a wallpaper!";
-//        Toast.makeText(getApplicationContext(),output,Toast.LENGTH_SHORT).show();
-//    }
 }
