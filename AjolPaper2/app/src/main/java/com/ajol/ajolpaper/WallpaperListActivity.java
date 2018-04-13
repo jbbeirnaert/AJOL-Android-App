@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -18,6 +21,8 @@ import android.widget.Toast;
  */
 
 public class WallpaperListActivity extends AppCompatActivity {
+    private Toolbar listToolbar;
+
     Cursor wallpapersCursor;
     SimpleCursorAdapter wallpapersCursorAdapter;
     ListView wallpapersView;
@@ -50,6 +55,11 @@ public class WallpaperListActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) { //Owen: this assumes list should display the wallpapers table
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+
+        //use toolbar in activity_list as the action bar
+        listToolbar = findViewById(R.id.list_toolbar);
+        setSupportActionBar(listToolbar);
+
 
         //connect to database
         dbLinker = new DatabaseLinker(getApplicationContext());
@@ -95,6 +105,17 @@ public class WallpaperListActivity extends AppCompatActivity {
         });
 
         populateWallpapers(5);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.appbar_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
