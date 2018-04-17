@@ -59,24 +59,28 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Uri imageUri = data.getData();
-        InputStream imageStream = null;
-        try {
-            imageStream = getContentResolver().openInputStream(imageUri);
-            ImageView imageView = (ImageView) findViewById(R.id.photo_preview);
-            imageView.setImageBitmap(BitmapFactory.decodeStream(imageStream));
-        } catch (FileNotFoundException e) {
-            // Handle the error
-        } finally {
-            if (imageStream != null) {
-                try {
-                    imageStream.close();
-                } catch (IOException e) {
-                    // Ignore the exception
+        if (data != null) {
+            Uri imageUri = data.getData();
+            InputStream imageStream = null;
+            try {
+                imageStream = getContentResolver().openInputStream(imageUri);
+                ImageView imageView = (ImageView) findViewById(R.id.photo_preview);
+                imageView.setImageBitmap(BitmapFactory.decodeStream(imageStream));
+            } catch (FileNotFoundException e) {
+                Toast.makeText(getApplicationContext(), "No image found!", Toast.LENGTH_SHORT).show();
+            } finally {
+                if (imageStream != null) {
+                    try {
+                        imageStream.close();
+                    } catch (IOException e) {
+                        Toast.makeText(getApplicationContext(), "Image stream still open!", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         }
-
+        else {
+            Toast.makeText(getApplicationContext(),"Image selection cancelled !",Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
