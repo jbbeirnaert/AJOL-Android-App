@@ -51,6 +51,24 @@ public class WallpaperListActivity extends AppCompatActivity {
             //R.id.photo_preview            Owen: to be added when photos are supported
     };
 
+    public static final String[] defaultsBind = {
+            DatabaseConstants._id,
+            DatabaseConstants.COLUMN_NAME,
+            DatabaseConstants.COLUMN_IMG
+    };
+
+    public static final String[] defaultsProjection = {
+            DatabaseConstants.COLUMN_NAME
+            //DatabaseConstants.COLUMN_IMG      Owen: to be added when photos are supported
+    };
+
+    public static final int[] defaultsMappings = {
+            R.id.name
+            //R.id.photo_preview            Owen: to be added when photos are supported
+    };
+
+    private boolean getDefaults = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState) { //Owen: this assumes list should display the wallpapers table
         super.onCreate(savedInstanceState);
@@ -65,17 +83,24 @@ public class WallpaperListActivity extends AppCompatActivity {
         db = dbLinker.getWritableDatabase();
 
         //handle whether the list should pull from defaults or from wallpapers
-        Intent incomingIntent = getIntent();
-        if (incomingIntent.getExtras().getBoolean(SettingsActivity.IS_GOING_TO_DEFAULT)) {
-            //pull from defaults
-            Toast.makeText(getApplicationContext(),"TO DO: pull from defaults table!",Toast.LENGTH_SHORT).show();
+        Bundle incomingIntentBundle = getIntent().getExtras();
+        if (incomingIntentBundle.getBoolean(SettingsActivity.IS_GOING_TO_DEFAULT)) {
+            //read defaults in from database
+            wallpapersCursor = db.query(DatabaseConstants.TABLE_DEFAULTS, defaultsBind, null,null,null,null,null,null);
+
+            //link wallpapersView to wallpapers (default wallpapers)
+            wallpapersCursorAdapter = new WallpapersCursorAdapter(getApplicationContext(),R.layout.list_item,wallpapersCursor,defaultsProjection,defaultsMappings);
+
+            getDefaults = true;
+        }
+        else {
+            //read wallpapers in from database
+            wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, wallpapersBind, null, null, null, null, null, null);
+
+            //link wallpapersView to wallpapers
+            wallpapersCursorAdapter = new WallpapersCursorAdapter(getApplicationContext(),R.layout.list_item,wallpapersCursor,wallpapersProjection,wallpapersMappings);
         }
 
-        //read wallpapers in from database to fill wallpapers[]
-        wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, wallpapersBind, null, null, null, null, null, null);
-
-        //link wallpapersView to wallpapers
-        wallpapersCursorAdapter = new WallpapersCursorAdapter(getApplicationContext(),R.layout.list_item,wallpapersCursor,wallpapersProjection,wallpapersMappings);
         wallpapersView = findViewById(R.id.wallpapers_view);
         wallpapersView.setAdapter(wallpapersCursorAdapter);
 
@@ -86,10 +111,6 @@ public class WallpaperListActivity extends AppCompatActivity {
                 //this should store the wallpaper from wallpapers[] in selected
                 Cursor selected = (Cursor) listView.getItemAtPosition(position);
                 String selectedName = selected.getString(selected.getColumnIndex(DatabaseConstants.COLUMN_NAME));
-                Double selectedX = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_X));
-                Double selectedY = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_Y));
-                Double selectedR = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_RADIUS));
-                String selectedInfo = selectedName + " (" + selectedX + "," + selectedY + ")*" + selectedR;
 
                 //create intent to start ModifyActivity
                 Intent editIntent = new Intent(getApplicationContext(), ModifyActivity.class);
@@ -97,9 +118,16 @@ public class WallpaperListActivity extends AppCompatActivity {
                 //pass the wallpaper that needs to be modified to the intent
                 Bundle wallpaperBundle = new Bundle();
                 wallpaperBundle.putString(SettingsActivity.WALLPAPER_BUNDLE_NAME,selectedName);
-                wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_X,selectedX);
-                wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_Y,selectedY);
-                wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_R,selectedR);
+
+                if (!getDefaults) {
+                    Double selectedX = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_X));
+                    Double selectedY = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_Y));
+                    Double selectedR = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_RADIUS));
+
+                    wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_X,selectedX);
+                    wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_Y,selectedY);
+                    wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_R,selectedR);
+                }
 
                 editIntent.putExtras(wallpaperBundle);
 
@@ -108,7 +136,12 @@ public class WallpaperListActivity extends AppCompatActivity {
             }
         });
 
-        populateWallpapers(5);
+        if (getDefaults) {
+            populateDefaults(5);
+        }
+        else {
+            populateWallpapers(5);
+        }
     }
 
     @Override
@@ -148,7 +181,7 @@ public class WallpaperListActivity extends AppCompatActivity {
         if (wallpapersCursor.getCount() < n) {
             for (int i = 0; i < n; i++) {
                 ContentValues values = new ContentValues();
-                values.put(DatabaseConstants.COLUMN_NAME, String.valueOf(i));
+                values.put(DatabaseConstants.COLUMN_NAME, "wallpaper" + String.valueOf(i));
                 values.put(DatabaseConstants.COLUMN_X, (double) i * 100);
                 values.put(DatabaseConstants.COLUMN_Y, (double) i * 100 + 100);
                 values.put(DatabaseConstants.COLUMN_RADIUS, (double) i * 10 + 10);
@@ -156,12 +189,31 @@ public class WallpaperListActivity extends AppCompatActivity {
 
                 db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
             }
-        }
 
-        //update wallpapers list
-        wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, wallpapersBind, null, null, null, null, null, null);
-        wallpapersCursorAdapter.changeCursor(wallpapersCursor);
-        wallpapersCursorAdapter.notifyDataSetChanged();
+            //update wallpapers list
+            wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, wallpapersBind, null, null, null, null, null, null);
+            wallpapersCursorAdapter.changeCursor(wallpapersCursor);
+            wallpapersCursorAdapter.notifyDataSetChanged();
+        }
+    }
+
+    //Owen: for testing add 5 example defaults
+    //Owen: NOTE that this does not satisfy the assumption that all default names are unique
+    public void populateDefaults(int n) {
+        if (wallpapersCursor.getCount() < n) {
+            for (int i = 0; i < n; i++) {
+                ContentValues values = new ContentValues();
+                values.put(DatabaseConstants.COLUMN_NAME, "default" + String.valueOf(i));
+                values.put(DatabaseConstants.COLUMN_IMG, (long) i * 1000);
+
+                db.insert(DatabaseConstants.TABLE_DEFAULTS, null, values);
+            }
+
+            //update defaults list
+            wallpapersCursor = db.query(DatabaseConstants.TABLE_DEFAULTS, defaultsBind, null, null, null, null, null, null);
+            wallpapersCursorAdapter.changeCursor(wallpapersCursor);
+            wallpapersCursorAdapter.notifyDataSetChanged();
+        }
     }
 
     //Owen: this method fires when the add floating action button is clicked.

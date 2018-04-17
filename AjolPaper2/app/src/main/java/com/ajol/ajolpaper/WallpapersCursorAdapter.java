@@ -10,10 +10,20 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+
 public class WallpapersCursorAdapter extends SimpleCursorAdapter {
+    private boolean getDefaults = true;
 
     public WallpapersCursorAdapter(Context context, int rowLayout, Cursor cursor, String[] projection, int[] mappings) { //Owen: the tutorial had objects as a List type, but that didn't work with super()...
         super(context, rowLayout, cursor, projection, mappings);
+
+        //check whether the cursor is connected to the wallpapers table or to the defaults table
+        for (int i=0; i<projection.length && getDefaults; i++) {
+            if (projection[i].equals(DatabaseConstants.COLUMN_RADIUS)) {
+                getDefaults = false;
+            }
+        }
     }
 
     @Override
@@ -27,7 +37,15 @@ public class WallpapersCursorAdapter extends SimpleCursorAdapter {
 
         //add units for distance
         TextView radiusView = view.findViewById(R.id.radius);
-        radiusView.setText(radiusView.getText() + " m");
+
+        if (radiusView != null) {
+            if (getDefaults) {
+                ((ViewGroup) radiusView.getParent()).removeView(radiusView); //if the list is defaults, remove the radius field
+            }
+            else {
+                radiusView.setText(radiusView.getText() + " m");
+            }
+        }
 
         //connect db.delete(thisWallpaper) method to delete button
         Button deleteButton = view.findViewById(R.id.delete_button);
@@ -40,12 +58,21 @@ public class WallpapersCursorAdapter extends SimpleCursorAdapter {
             public void onClick(View view) {
                 DatabaseLinker dbLinker = new DatabaseLinker(context);
                 SQLiteDatabase db = dbLinker.getWritableDatabase();
+                Cursor newCursor;
 
-                //delete the wallpaper from the table!
-                db.delete(DatabaseConstants.TABLE_WALLPAPERS,DatabaseConstants.COLUMN_NAME + "='" + name + "'",null);
+                //delete the wallpaper/default from the table!
+                if (getDefaults) {
+                    db.delete(DatabaseConstants.TABLE_DEFAULTS,DatabaseConstants.COLUMN_NAME + "='" + name + "'",null);
 
-                //update wallpapers list view
-                Cursor newCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS,WallpaperListActivity.wallpapersBind,null,null,null,null,null);
+                    //update defaults list view
+                    newCursor = db.query(DatabaseConstants.TABLE_DEFAULTS,WallpaperListActivity.defaultsBind,null,null,null,null,null);
+                }
+                else {
+                    db.delete(DatabaseConstants.TABLE_WALLPAPERS, DatabaseConstants.COLUMN_NAME + "='" + name + "'", null);
+
+                    //update wallpapers list view
+                    newCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS,WallpaperListActivity.wallpapersBind,null,null,null,null,null);
+                }
 
                 self.changeCursor(newCursor);
                 self.notifyDataSetChanged();

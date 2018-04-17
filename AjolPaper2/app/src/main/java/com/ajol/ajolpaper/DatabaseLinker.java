@@ -26,7 +26,8 @@ public class DatabaseLinker extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_DEFAULTS = CREATE_TABLE + SPACE +
             DatabaseConstants.TABLE_DEFAULTS + " (" +
             DatabaseConstants._id + " integer primary key" + COMMA +
-            DatabaseConstants.COLUMN_NAME + SPACE + TEXT_TYPE + " )";
+            DatabaseConstants.COLUMN_NAME + SPACE + TEXT_TYPE + COMMA +
+            DatabaseConstants.COLUMN_IMG + SPACE + IMG_TYPE + " )";
 
     private static final String DELETE_TABLE_WALLPAPERS = DROP_TABLE + SPACE + DatabaseConstants.TABLE_WALLPAPERS;
     private static final String DELETE_TABLE_DEFAULTS = DROP_TABLE + SPACE + DatabaseConstants.TABLE_DEFAULTS;

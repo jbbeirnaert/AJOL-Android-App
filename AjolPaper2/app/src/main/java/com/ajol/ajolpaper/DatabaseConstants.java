@@ -4,7 +4,7 @@ import android.provider.BaseColumns;
 
 public class DatabaseConstants implements BaseColumns {
     public static final String DB_NAME = "AjolWallpapers.db";
-    public static final int DB_VERSION = 1;
+    public static final int DB_VERSION = 2;
     public static final String _id = "_id";
     public static final String TABLE_WALLPAPERS = "wallpapers";
     public static final String TABLE_DEFAULTS = "defaults";
