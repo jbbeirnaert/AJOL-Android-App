@@ -1,6 +1,5 @@
 package com.ajol.ajolpaper;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
