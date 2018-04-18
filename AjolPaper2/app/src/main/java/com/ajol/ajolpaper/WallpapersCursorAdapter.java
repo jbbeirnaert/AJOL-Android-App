@@ -3,13 +3,19 @@ package com.ajol.ajolpaper;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 public class WallpapersCursorAdapter extends SimpleCursorAdapter {
@@ -43,7 +49,8 @@ public class WallpapersCursorAdapter extends SimpleCursorAdapter {
                 ((ViewGroup) radiusView.getParent()).removeView(radiusView); //if the list is defaults, remove the radius field
             }
             else {
-                radiusView.setText(radiusView.getText() + " m");
+                String output = radiusView.getText() + " m";
+                radiusView.setText(output);
             }
         }
 
@@ -78,6 +85,31 @@ public class WallpapersCursorAdapter extends SimpleCursorAdapter {
                 self.notifyDataSetChanged();
             }
         });
+
+        //show image preview
+        TextView uriHolder = view.findViewById(R.id.uri_holder);
+        Uri imageUri = Uri.parse(uriHolder.getText().toString());
+        InputStream imageStream = null;
+        ImageView photoPreview = view.findViewById(R.id.photo_preview_list);
+
+        try {
+            imageStream = context.getContentResolver().openInputStream(imageUri);
+            photoPreview.setImageBitmap(BitmapFactory.decodeStream(imageStream));
+        }
+        catch (FileNotFoundException e) {
+            photoPreview.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_settings_black_24dp));
+//            Toast.makeText(context,"Unable to load photo for " + name,Toast.LENGTH_SHORT).show();
+        }
+        finally {
+            if (imageStream != null) {
+                try {
+                    imageStream.close();
+                }
+                catch (IOException e) {
+//                    Toast.makeText(context,"Image stream still open!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 }
 

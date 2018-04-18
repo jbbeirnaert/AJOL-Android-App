@@ -4,7 +4,9 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -15,6 +17,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
+
+import java.util.Random;
 
 /**
  * Created by owengallagher on 3/29/18.
@@ -41,14 +45,14 @@ public class WallpaperListActivity extends AppCompatActivity {
 
     public static final String[] wallpapersProjection = {
             DatabaseConstants.COLUMN_NAME,
-            DatabaseConstants.COLUMN_RADIUS
-            //DatabaseConstants.COLUMN_IMG      Owen: to be added when photos are supported
+            DatabaseConstants.COLUMN_RADIUS,
+            DatabaseConstants.COLUMN_IMG
     };
 
     public static final int[] wallpapersMappings = {
             R.id.name,
-            R.id.radius
-            //R.id.photo_preview            Owen: to be added when photos are supported
+            R.id.radius,
+            R.id.uri_holder
     };
 
     public static final String[] defaultsBind = {
@@ -58,19 +62,19 @@ public class WallpaperListActivity extends AppCompatActivity {
     };
 
     public static final String[] defaultsProjection = {
-            DatabaseConstants.COLUMN_NAME
-            //DatabaseConstants.COLUMN_IMG      Owen: to be added when photos are supported
+            DatabaseConstants.COLUMN_NAME,
+            DatabaseConstants.COLUMN_IMG
     };
 
     public static final int[] defaultsMappings = {
-            R.id.name
-            //R.id.photo_preview            Owen: to be added when photos are supported
+            R.id.name,
+            R.id.uri_holder
     };
 
     private boolean getDefaults = false;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) { //Owen: this assumes list should display the wallpapers table
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
@@ -84,14 +88,19 @@ public class WallpaperListActivity extends AppCompatActivity {
 
         //handle whether the list should pull from defaults or from wallpapers
         Bundle incomingIntentBundle = getIntent().getExtras();
-        if (incomingIntentBundle.getBoolean(SettingsActivity.IS_GOING_TO_DEFAULT)) {
+        try {
+            getDefaults = incomingIntentBundle.getBoolean(SettingsActivity.IS_GOING_TO_DEFAULT);
+        }
+        catch (NullPointerException e) {
+            Toast.makeText(getApplicationContext(),"DB table not specified!",Toast.LENGTH_SHORT).show();
+        }
+
+        if (getDefaults) {
             //read defaults in from database
             wallpapersCursor = db.query(DatabaseConstants.TABLE_DEFAULTS, defaultsBind, null,null,null,null,null,null);
 
             //link wallpapersView to wallpapers (default wallpapers)
             wallpapersCursorAdapter = new WallpapersCursorAdapter(getApplicationContext(),R.layout.list_item,wallpapersCursor,defaultsProjection,defaultsMappings);
-
-            getDefaults = true;
         }
         else {
             //read wallpapers in from database
@@ -181,11 +190,12 @@ public class WallpaperListActivity extends AppCompatActivity {
         if (wallpapersCursor.getCount() < n) {
             for (int i = 0; i < n; i++) {
                 ContentValues values = new ContentValues();
-                values.put(DatabaseConstants.COLUMN_NAME, "wallpaper" + String.valueOf(i));
+
+                values.put(DatabaseConstants.COLUMN_NAME, generateName(6));
                 values.put(DatabaseConstants.COLUMN_X, (double) i * 100);
                 values.put(DatabaseConstants.COLUMN_Y, (double) i * 100 + 100);
                 values.put(DatabaseConstants.COLUMN_RADIUS, (double) i * 10 + 10);
-                values.put(DatabaseConstants.COLUMN_IMG, (long) i * 1000);
+                values.put(DatabaseConstants.COLUMN_IMG, String.valueOf(i * 1000));
 
                 db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
             }
@@ -203,8 +213,8 @@ public class WallpaperListActivity extends AppCompatActivity {
         if (wallpapersCursor.getCount() < n) {
             for (int i = 0; i < n; i++) {
                 ContentValues values = new ContentValues();
-                values.put(DatabaseConstants.COLUMN_NAME, "default" + String.valueOf(i));
-                values.put(DatabaseConstants.COLUMN_IMG, (long) i * 1000);
+                values.put(DatabaseConstants.COLUMN_NAME, generateName(6));
+                values.put(DatabaseConstants.COLUMN_IMG, String.valueOf(i * 1000));
 
                 db.insert(DatabaseConstants.TABLE_DEFAULTS, null, values);
             }
@@ -216,10 +226,38 @@ public class WallpaperListActivity extends AppCompatActivity {
         }
     }
 
+    //Owen: just for fun
+    public String generateName(int len) {
+        Random generator = new Random();
+        boolean evens = false;
+        char[] opens = {'a','e','i','o','u','y'};
+
+        String output = "";
+
+        if (generator.nextBoolean()) {
+            evens = true;
+        }
+
+        for (int l=0; l<len; l++) {
+            if ((evens && l % 2 == 0) || (!evens && l % 2 != 0)) {
+                int nextLetter = 97 + generator.nextInt(25);
+
+                output += (char) nextLetter;
+            }
+            else {
+                output += opens[generator.nextInt(opens.length-1)];
+            }
+        }
+
+        return output;
+    }
+
     //Owen: this method fires when the add floating action button is clicked.
     public void addWallpaper(View view) {
-        //FILL IN
-        String output = "I want to add a wallpaper!";
-        Toast.makeText(getApplicationContext(),output,Toast.LENGTH_SHORT).show();
+        Intent addIntent = new Intent(getApplicationContext(),ModifyActivity.class);
+        Bundle bundle = new Bundle();
+
+        bundle.putBoolean(SettingsActivity.IS_GOING_TO_DEFAULT,getDefaults);
+        startActivity(addIntent);
     }
 }

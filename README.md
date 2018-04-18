@@ -11,35 +11,41 @@ Ajol Paper is an android mobile application that allows the user to customize th
 		- [x] defaults button
 		- [x] save button
 	- [ ] list layout
-		- [ ] toolbar
-			- [ ] search bar
-			- [ ] navigation menu
+		- [x] toolbar
+			- [x] ...search bar
+			- [x] navigation to settings
 		- [ ] list item
 			- [x] wallpaper name
-			- [x] image
-			- [ ] radius
+			- [ ] ...image
+			- [x] radius
 			- [x] edit button
 			- [x] delete button
 		- [ ] list-empty view
 		- [x] scrollable
-		- [ ] clickable
+		- [x] clickable
+        - [ ] ...make item.image use the wallpaper's uri string
 	- [x] modify layout
 		- [x] include map
 		- [x] wallpaper info
 		- [x] save button
+        - [ ] map displays wallpapers
+        - [ ] map.onclick() -> changes desired x and y coordinates
 	- [ ] link activities together
 		- [ ] settings -> modify
-		- [ ] settings -> list
-		- [ ] list -> settings
-		- [ ] list -> modify
+		- [x] settings -> list
+		- [x] list -> settings
+		- [x] list -> modify
 		- [ ] modify -> settings
 		- [ ] modify -> list
-- [ ] Persistent Storage
-- [ ] Enable UI buttons
-	- [ ] settings
-	- [ ] list
-	- [ ] modify
+- [x] Persistent Storage
+- [x] Enable UI buttons
+	- [x] settings
+	- [x] list
+	- [x] modify
 - [ ] Background App
-- [ ] Device Location Integration
+    - [ ] track device location
+    - [ ] compare location to wallpapers.locations
+    - [ ] update device wallpaper
+- [x] Device Location Integration
 	- [x] ask permission in activity
 	- [x] google maps api key

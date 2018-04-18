@@ -59,7 +59,7 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
         super.onActivityResult(requestCode, resultCode, data);
 
         if (data != null) {
-            Uri imageUri = data.getData();
+            Uri imageUri = data.getData(); //Owen: make sure to save this uri to the database in the wallpapers/defaults table
             InputStream imageStream = null;
             try {
                 imageStream = getContentResolver().openInputStream(imageUri);
@@ -78,7 +78,7 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
             }
         }
         else {
-            Toast.makeText(getApplicationContext(),"Image selection cancelled !",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),"Image selection cancelled!",Toast.LENGTH_SHORT).show();
         }
     }
 
