@@ -20,4 +20,8 @@
     <string name="etRefreshTime">30</string>
     <string name="tvDefault">Use default pictures</string>
     <string name="buttonSave">Save</string>
+
+    <string name="title_location_permission">Permission</string>
+    <string name="text_location_permission">The app needs you location</string>
+    <string name="ok">Ok</string>
 </resources>

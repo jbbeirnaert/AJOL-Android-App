@@ -15,6 +15,10 @@ public class Wallpaper {
     public double y;
     public double radius;
 
+    public Wallpaper() {
+
+    }
+
     public Wallpaper(String name) {
         this.imageUri = null;
         this.name = name;

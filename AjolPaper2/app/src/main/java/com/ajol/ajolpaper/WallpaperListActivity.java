@@ -188,17 +188,47 @@ public class WallpaperListActivity extends AppCompatActivity {
     //Owen: NOTE that this does not satisfy the assumption that all wallpaper names are unique
     public void populateWallpapers(int n) {
         if (wallpapersCursor.getCount() < n) {
-            for (int i = 0; i < n; i++) {
-                ContentValues values = new ContentValues();
 
-                values.put(DatabaseConstants.COLUMN_NAME, generateName(6));
-                values.put(DatabaseConstants.COLUMN_X, (double) i * 100);
-                values.put(DatabaseConstants.COLUMN_Y, (double) i * 100 + 100);
-                values.put(DatabaseConstants.COLUMN_RADIUS, (double) i * 10 + 10);
-                values.put(DatabaseConstants.COLUMN_IMG, String.valueOf(i * 1000));
+            ContentValues values = new ContentValues();
+            values.put(DatabaseConstants.COLUMN_NAME, "BAC");
+            values.put(DatabaseConstants.COLUMN_X, 40.501288);
+            values.put(DatabaseConstants.COLUMN_Y, -78.018258);
+            values.put(DatabaseConstants.COLUMN_RADIUS, (double) 15);
+            values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
+            db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
 
-                db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
-            }
+            values = new ContentValues();
+            values.put(DatabaseConstants.COLUMN_NAME, "Ellis Hall");
+            values.put(DatabaseConstants.COLUMN_X, 40.500404);
+            values.put(DatabaseConstants.COLUMN_Y, -78.014396);
+            values.put(DatabaseConstants.COLUMN_RADIUS, (double) 30);
+            values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
+            db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
+
+            values = new ContentValues();
+            values.put(DatabaseConstants.COLUMN_NAME, "TNT");
+            values.put(DatabaseConstants.COLUMN_X, 40.502137);
+            values.put(DatabaseConstants.COLUMN_Y, -78.017113);
+            values.put(DatabaseConstants.COLUMN_RADIUS, (double) 40);
+            values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
+            db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
+
+            values = new ContentValues();
+            values.put(DatabaseConstants.COLUMN_NAME, "Good Hall");
+            values.put(DatabaseConstants.COLUMN_X, 40.499451);
+            values.put(DatabaseConstants.COLUMN_Y, -78.017825);
+            values.put(DatabaseConstants.COLUMN_RADIUS, (double) 30);
+            values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
+            db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
+
+            values = new ContentValues();
+            values.put(DatabaseConstants.COLUMN_NAME, "Stone Church");
+            values.put(DatabaseConstants.COLUMN_X, 40.498488);
+            values.put(DatabaseConstants.COLUMN_Y, -78.016745);
+            values.put(DatabaseConstants.COLUMN_RADIUS, (double) 20);
+            values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
+            db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
+
 
             //update wallpapers list
             wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, wallpapersBind, null, null, null, null, null, null);
