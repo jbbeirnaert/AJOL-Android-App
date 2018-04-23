@@ -186,7 +186,7 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        
+
 
         DatabaseLinker dbHelper = new DatabaseLinker(getApplicationContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -223,22 +223,20 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
             wallpapers.add(wallpaper);
         }
         cursor.close();
-        for(int i=0; i<wallpapers.size(); i++){
-            mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(wallpapers.get(i).x, wallpapers.get(i).y))
-                    .anchor(0.5f, 0.5f)
-                    .title(wallpapers.get(i).name)
-                    .snippet("Radius: " + wallpapers.get(i).radius + "m")
-            );
-        }
-
-//
-//        mMap.addMarker(new MarkerOptions()
-//                .position(new LatLng(40.501288, -78.018258))
-//                .anchor(0.5f, 0.5f)
-//                .title("BAC")
-//                .snippet("Radius: 15m")
-//        );
+//        for(int i=0; i<wallpapers.size(); i++){
+//            mMap.addMarker(new MarkerOptions()
+//                    .position(new LatLng(wallpapers.get(i).x, wallpapers.get(i).y))
+//                    .anchor(0.5f, 0.5f)
+//                    .title(wallpapers.get(i).name)
+//                    .snippet("Radius: " + wallpapers.get(i).radius + "m")
+//            );
+        
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(40.501288, -78.018258))
+                .anchor(0.5f, 0.5f)
+                .title("BAC")
+                .snippet("Radius: 15m")
+        );
 //
 //        mMap.addMarker(new MarkerOptions()
 //                .position(new LatLng(40.500404, -78.014396))
