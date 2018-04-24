@@ -1,10 +1,10 @@
 package com.ajol.ajolpaper;
 
+import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +18,10 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by owengallagher on 3/29/18.
@@ -71,7 +74,10 @@ public class WallpaperListActivity extends AppCompatActivity {
             R.id.uri_holder
     };
 
+    private static boolean wasDefaults = false;  //when search is executed, getDefaults is not otherwise passed to the new activity
+
     private boolean getDefaults = false;
+    private ArrayList<String> searchTerms = new ArrayList<>(0);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,29 +92,70 @@ public class WallpaperListActivity extends AppCompatActivity {
         dbLinker = new DatabaseLinker(getApplicationContext());
         db = dbLinker.getWritableDatabase();
 
+        //handle search query (when search is performed, this activity is started again with the search query in the intent)
+        Intent intent = getIntent();
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String searchQuery = intent.getStringExtra(SearchManager.QUERY);
+
+            searchTerms = parseQuery(searchQuery); //split by spaces and remove non-alphanumeric characters
+        }
+
         //handle whether the list should pull from defaults or from wallpapers
-        Bundle incomingIntentBundle = getIntent().getExtras();
+        Bundle incomingIntentBundle = intent.getExtras();
         try {
             getDefaults = incomingIntentBundle.getBoolean(SettingsActivity.IS_GOING_TO_DEFAULT);
         }
         catch (NullPointerException e) {
             Toast.makeText(getApplicationContext(),"DB table not specified!",Toast.LENGTH_SHORT).show();
+
+            getDefaults = wasDefaults;
         }
 
         if (getDefaults) {
             //read defaults in from database
-            wallpapersCursor = db.query(DatabaseConstants.TABLE_DEFAULTS, defaultsBind, null,null,null,null,null,null);
+            if (searchTerms.size() == 0) {
+                wallpapersCursor = db.query(DatabaseConstants.TABLE_DEFAULTS, defaultsBind, null, null, null, null, null, null);
+            }
+            else {
+                String whereClause = "";
+
+                for (int i=0; i<searchTerms.size(); i++) {
+                    whereClause += "(" + DatabaseConstants.COLUMN_NAME + " LIKE '%" + searchTerms.get(i) + "%')";
+
+                    if (i < searchTerms.size()-1) {
+                        whereClause += " OR ";
+                    }
+                }
+
+                wallpapersCursor = db.query(DatabaseConstants.TABLE_DEFAULTS,defaultsBind,whereClause,null,null,null,null,null);
+            }
 
             //link wallpapersView to wallpapers (default wallpapers)
             wallpapersCursorAdapter = new WallpapersCursorAdapter(getApplicationContext(),R.layout.list_item,wallpapersCursor,defaultsProjection,defaultsMappings);
         }
         else {
             //read wallpapers in from database
-            wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, wallpapersBind, null, null, null, null, null, null);
+            if (searchTerms.size() == 0) {
+                wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, wallpapersBind, null, null, null, null, null, null);
+            }
+            else {
+                String whereClause = "";
+
+                for (int i=0; i<searchTerms.size(); i++) {
+                    whereClause += "(" + DatabaseConstants.COLUMN_NAME + " LIKE '%" + searchTerms.get(i) + "%')";
+
+                    if (i < searchTerms.size() - 1) {
+                        whereClause += " OR ";
+                    }
+                }
+                
+                wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS,wallpapersBind,whereClause,null,null,null,null,null);
+            }
 
             //link wallpapersView to wallpapers
             wallpapersCursorAdapter = new WallpapersCursorAdapter(getApplicationContext(),R.layout.list_item,wallpapersCursor,wallpapersProjection,wallpapersMappings);
         }
+        wasDefaults = getDefaults;
 
         wallpapersView = findViewById(R.id.wallpapers_view);
         wallpapersView.setAdapter(wallpapersCursorAdapter);
@@ -239,6 +286,30 @@ public class WallpaperListActivity extends AppCompatActivity {
             wallpapersCursorAdapter.changeCursor(wallpapersCursor);
             wallpapersCursorAdapter.notifyDataSetChanged();
         }
+    }
+
+    //Owen: pull search terms from the query string and use regex to remove unwanted characters
+    public ArrayList<String> parseQuery(String terms) {
+        ArrayList<String> output = new ArrayList<>(1);
+
+        String[] input = terms.split(" ");
+        Pattern validPattern = Pattern.compile("[A-Za-z0-9]");
+        Matcher validator;
+        String validInput;
+
+        for (int i=0; i<input.length; i++) {
+            validInput = "";
+            validator = validPattern.matcher(input[i]);
+
+            while (validator.find()) {
+                validInput += validator.group();
+            }
+
+            output.add(validInput);
+            Toast.makeText(getApplicationContext(),"Search term: " + validInput, Toast.LENGTH_SHORT).show();
+        }
+
+        return output;
     }
 
     //Owen: for testing add 5 example defaults

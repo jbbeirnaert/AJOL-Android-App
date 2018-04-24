@@ -25,7 +25,7 @@
     <!--Owen's api key: AIzaSyDQIOiLlW48eoiaoKR3wMHAvCDWa4dTuRg -->
     <!--JB's api key: AIzaSyASh3uEAAyGaIY5jql9TUeoCnm7Yuti5Cs -->
 
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyASh3uEAAyGaIY5jql9TUeoCnm7Yuti5Cs</string>
-
+    <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyASh3uEAAyGaIY5jql9TUeoCnm7Yuti5Cs</string>-->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDQIOiLlW48eoiaoKR3wMHAvCDWa4dTuRg</string>
     <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyA97XBIzXrPd5YCl27RNFN9t4jd7zrKC84</string>-->
 </resources>

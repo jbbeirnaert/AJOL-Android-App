@@ -24,4 +24,6 @@
     <string name="title_location_permission">Permission</string>
     <string name="text_location_permission">The app needs you location</string>
     <string name="ok">Ok</string>
+
+    <string name="search_hint">Search wallpapers</string>
 </resources>
