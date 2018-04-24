@@ -127,12 +127,12 @@ public class WallpaperListActivity extends AppCompatActivity {
 
                 //pass the wallpaper that needs to be modified to the intent
                 Bundle wallpaperBundle = new Bundle();
+                wallpaperBundle.putBoolean(SettingsActivity.IS_GOING_TO_DEFAULT,getDefaults);
+                wallpaperBundle.putBoolean(SettingsActivity.WALLPAPER_BUNDLE_IS_NEW,false);
                 wallpaperBundle.putString(SettingsActivity.WALLPAPER_BUNDLE_NAME,selectedName);
                 wallpaperBundle.putString(SettingsActivity.WALLPAPER_BUNDLE_IMG,selectedImg);
 
                 if (!getDefaults) {
-                    wallpaperBundle.putBoolean(SettingsActivity.WALLPAPER_BUNDLE_DEFAULT,false);
-
                     Double selectedX = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_X));
                     Double selectedY = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_Y));
                     Double selectedR = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_RADIUS));
@@ -140,9 +140,6 @@ public class WallpaperListActivity extends AppCompatActivity {
                     wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_X,selectedX);
                     wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_Y,selectedY);
                     wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_R,selectedR);
-                }
-                else {
-                    wallpaperBundle.putBoolean(SettingsActivity.WALLPAPER_BUNDLE_DEFAULT,true);
                 }
 
                 editIntent.putExtras(wallpaperBundle);
@@ -295,6 +292,7 @@ public class WallpaperListActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
 
         bundle.putBoolean(SettingsActivity.IS_GOING_TO_DEFAULT,getDefaults);
+        bundle.putBoolean(SettingsActivity.WALLPAPER_BUNDLE_IS_NEW,true);
         startActivity(addIntent);
     }
 }

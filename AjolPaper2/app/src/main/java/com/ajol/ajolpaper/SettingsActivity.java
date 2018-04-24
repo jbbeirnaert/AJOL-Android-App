@@ -38,7 +38,7 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
     public static final String WALLPAPER_BUNDLE_Y = "y";
     public static final String WALLPAPER_BUNDLE_R = "r";
     public static final String WALLPAPER_BUNDLE_IMG = "img";
-    public static final String WALLPAPER_BUNDLE_DEFAULT = "default";
+    public static final String WALLPAPER_BUNDLE_IS_NEW = "new";
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
