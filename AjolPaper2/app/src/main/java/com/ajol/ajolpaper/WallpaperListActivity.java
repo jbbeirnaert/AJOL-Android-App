@@ -120,6 +120,7 @@ public class WallpaperListActivity extends AppCompatActivity {
                 //this should store the wallpaper from wallpapers[] in selected
                 Cursor selected = (Cursor) listView.getItemAtPosition(position);
                 String selectedName = selected.getString(selected.getColumnIndex(DatabaseConstants.COLUMN_NAME));
+                String selectedImg = selected.getString(selected.getColumnIndex(DatabaseConstants.COLUMN_IMG));
 
                 //create intent to start ModifyActivity
                 Intent editIntent = new Intent(getApplicationContext(), ModifyActivity.class);
@@ -127,8 +128,11 @@ public class WallpaperListActivity extends AppCompatActivity {
                 //pass the wallpaper that needs to be modified to the intent
                 Bundle wallpaperBundle = new Bundle();
                 wallpaperBundle.putString(SettingsActivity.WALLPAPER_BUNDLE_NAME,selectedName);
+                wallpaperBundle.putString(SettingsActivity.WALLPAPER_BUNDLE_IMG,selectedImg);
 
                 if (!getDefaults) {
+                    wallpaperBundle.putBoolean(SettingsActivity.WALLPAPER_BUNDLE_DEFAULT,false);
+
                     Double selectedX = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_X));
                     Double selectedY = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_Y));
                     Double selectedR = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_RADIUS));
@@ -136,6 +140,9 @@ public class WallpaperListActivity extends AppCompatActivity {
                     wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_X,selectedX);
                     wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_Y,selectedY);
                     wallpaperBundle.putDouble(SettingsActivity.WALLPAPER_BUNDLE_R,selectedR);
+                }
+                else {
+                    wallpaperBundle.putBoolean(SettingsActivity.WALLPAPER_BUNDLE_DEFAULT,true);
                 }
 
                 editIntent.putExtras(wallpaperBundle);
@@ -197,7 +204,7 @@ public class WallpaperListActivity extends AppCompatActivity {
             values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
             db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
 
-            values = new ContentValues();
+            values.clear();
             values.put(DatabaseConstants.COLUMN_NAME, "Ellis Hall");
             values.put(DatabaseConstants.COLUMN_X, 40.500404);
             values.put(DatabaseConstants.COLUMN_Y, -78.014396);
@@ -205,7 +212,7 @@ public class WallpaperListActivity extends AppCompatActivity {
             values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
             db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
 
-            values = new ContentValues();
+            values.clear();
             values.put(DatabaseConstants.COLUMN_NAME, "TNT");
             values.put(DatabaseConstants.COLUMN_X, 40.502137);
             values.put(DatabaseConstants.COLUMN_Y, -78.017113);
@@ -213,7 +220,7 @@ public class WallpaperListActivity extends AppCompatActivity {
             values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
             db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
 
-            values = new ContentValues();
+            values.clear();
             values.put(DatabaseConstants.COLUMN_NAME, "Good Hall");
             values.put(DatabaseConstants.COLUMN_X, 40.499451);
             values.put(DatabaseConstants.COLUMN_Y, -78.017825);
@@ -221,7 +228,7 @@ public class WallpaperListActivity extends AppCompatActivity {
             values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
             db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
 
-            values = new ContentValues();
+            values.clear();
             values.put(DatabaseConstants.COLUMN_NAME, "Stone Church");
             values.put(DatabaseConstants.COLUMN_X, 40.498488);
             values.put(DatabaseConstants.COLUMN_Y, -78.016745);
