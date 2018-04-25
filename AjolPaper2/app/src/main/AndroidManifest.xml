@@ -40,7 +40,8 @@
 
         <activity
             android:name=".WallpaperListActivity"
-            android:label="@string/title_activity_list">
+            android:label="@string/title_activity_list"
+            android:launchMode="singleTop"> <!--Owen: when the activity is relaunched, old instances are destroyed-->
 
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" /> <!--Owen: tell android to send search query to WallpaperListActivity-->

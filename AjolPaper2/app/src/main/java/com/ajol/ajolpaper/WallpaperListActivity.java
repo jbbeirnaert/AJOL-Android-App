@@ -2,11 +2,11 @@ package com.ajol.ajolpaper;
 
 import android.app.SearchManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 
 public class WallpaperListActivity extends AppCompatActivity {
     private Toolbar listToolbar;
+    private SearchView searchView = null;
 
     Cursor wallpapersCursor;
     SimpleCursorAdapter wallpapersCursorAdapter;
@@ -74,8 +75,7 @@ public class WallpaperListActivity extends AppCompatActivity {
             R.id.uri_holder
     };
 
-    private static boolean wasDefaults = false;  //when search is executed, getDefaults is not otherwise passed to the new activity
-
+    private boolean wasDefaults = false;
     private boolean getDefaults = false;
     private ArrayList<String> searchTerms = new ArrayList<>(0);
 
@@ -92,65 +92,26 @@ public class WallpaperListActivity extends AppCompatActivity {
         dbLinker = new DatabaseLinker(getApplicationContext());
         db = dbLinker.getWritableDatabase();
 
-        //handle search query (when search is performed, this activity is started again with the search query in the intent)
-        Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String searchQuery = intent.getStringExtra(SearchManager.QUERY);
-
-            searchTerms = parseQuery(searchQuery); //split by spaces and remove non-alphanumeric characters
-        }
-
         //handle whether the list should pull from defaults or from wallpapers
-        Bundle incomingIntentBundle = intent.getExtras();
+        Bundle incomingIntentBundle = getIntent().getExtras();
         try {
             getDefaults = incomingIntentBundle.getBoolean(SettingsActivity.IS_GOING_TO_DEFAULT);
         }
         catch (NullPointerException e) {
             Toast.makeText(getApplicationContext(),"DB table not specified!",Toast.LENGTH_SHORT).show();
-
             getDefaults = wasDefaults;
         }
 
         if (getDefaults) {
             //read defaults in from database
-            if (searchTerms.size() == 0) {
-                wallpapersCursor = db.query(DatabaseConstants.TABLE_DEFAULTS, defaultsBind, null, null, null, null, null, null);
-            }
-            else {
-                String whereClause = "";
-
-                for (int i=0; i<searchTerms.size(); i++) {
-                    whereClause += "(" + DatabaseConstants.COLUMN_NAME + " LIKE '%" + searchTerms.get(i) + "%')";
-
-                    if (i < searchTerms.size()-1) {
-                        whereClause += " OR ";
-                    }
-                }
-
-                wallpapersCursor = db.query(DatabaseConstants.TABLE_DEFAULTS,defaultsBind,whereClause,null,null,null,null,null);
-            }
+            wallpapersCursor = db.query(DatabaseConstants.TABLE_DEFAULTS,defaultsBind,null,null,null,null,null,null);
 
             //link wallpapersView to wallpapers (default wallpapers)
             wallpapersCursorAdapter = new WallpapersCursorAdapter(getApplicationContext(),R.layout.list_item,wallpapersCursor,defaultsProjection,defaultsMappings);
         }
         else {
             //read wallpapers in from database
-            if (searchTerms.size() == 0) {
-                wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, wallpapersBind, null, null, null, null, null, null);
-            }
-            else {
-                String whereClause = "";
-
-                for (int i=0; i<searchTerms.size(); i++) {
-                    whereClause += "(" + DatabaseConstants.COLUMN_NAME + " LIKE '%" + searchTerms.get(i) + "%')";
-
-                    if (i < searchTerms.size() - 1) {
-                        whereClause += " OR ";
-                    }
-                }
-                
-                wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS,wallpapersBind,whereClause,null,null,null,null,null);
-            }
+            wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, wallpapersBind, null, null, null, null, null, null);
 
             //link wallpapersView to wallpapers
             wallpapersCursorAdapter = new WallpapersCursorAdapter(getApplicationContext(),R.layout.list_item,wallpapersCursor,wallpapersProjection,wallpapersMappings);
@@ -196,11 +157,14 @@ public class WallpaperListActivity extends AppCompatActivity {
             }
         });
 
-        if (getDefaults) {
-            populateDefaults(5);
-        }
-        else {
-            populateWallpapers(5);
+        handleIntent(getIntent());
+
+        if (searchTerms.size() == 0) {
+            if (getDefaults) {
+                populateDefaults(5);
+            } else {
+                populateWallpapers(5);
+            }
         }
     }
 
@@ -210,7 +174,16 @@ public class WallpaperListActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         MenuItem searchItem = menu.findItem(R.id.appbar_search);
-        SearchView searchView = (SearchView) searchItem.getActionView(); //Owen: see this to set searchable configuration: https://developer.android.com/training/search/setup.html#create-sc
+        searchView = (SearchView) searchItem.getActionView();
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+
+        try {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            searchView.setIconifiedByDefault(true);
+        }
+        catch (NullPointerException e) {
+            Toast.makeText(getApplicationContext(),"Search bar is broken...",Toast.LENGTH_SHORT).show();
+        }
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -233,6 +206,53 @@ public class WallpaperListActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         db.close();
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        handleIntent(intent);
+    }
+
+    public void handleIntent(Intent intent) {
+        if (searchView != null) {
+            //close search view
+            if (!searchView.isIconified()) {
+                searchView.onActionViewCollapsed();
+            }
+        }
+
+        //handle search query (when search is performed, this activity is started again with the search query in the intent)
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String searchQuery = intent.getStringExtra(SearchManager.QUERY);
+
+            searchTerms = parseQuery(searchQuery); //split by spaces and remove non-alphanumeric characters
+
+            //create where clause for to pull only desired wallpapers/defaults from the database
+            StringBuilder whereClause = new StringBuilder();
+            if (searchTerms.size() != 0) {
+                for (int i=0; i<searchTerms.size(); i++) {
+                    whereClause.append("(");
+                    whereClause.append(DatabaseConstants.COLUMN_NAME);
+                    whereClause.append(" LIKE '%");
+                    whereClause.append(searchTerms.get(i));
+                    whereClause.append("%')");
+
+                    if (i < searchTerms.size()-1) {
+                        whereClause.append(" OR ");
+                    }
+                }
+
+                if (getDefaults) {
+                    wallpapersCursor = db.query(DatabaseConstants.TABLE_DEFAULTS, defaultsBind, whereClause.toString(), null, null, null, null, null);
+                }
+                else {
+                    wallpapersCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, wallpapersBind, whereClause.toString(), null, null, null, null, null);
+                }
+
+                wallpapersCursorAdapter.changeCursor(wallpapersCursor);
+                wallpapersCursorAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     //Owen: for testing add 5 example wallpapers
@@ -306,7 +326,6 @@ public class WallpaperListActivity extends AppCompatActivity {
             }
 
             output.add(validInput);
-            Toast.makeText(getApplicationContext(),"Search term: " + validInput, Toast.LENGTH_SHORT).show();
         }
 
         return output;
