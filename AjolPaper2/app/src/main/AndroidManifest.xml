@@ -15,6 +15,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!--
+            Owen: register that this app is to be the sent alarm broadcast to update the device wallpaper
+        -->
+        <receiver android:name="com.ajol.ajolpaper.RefreshAlarmReceiver">
+            <intent-filter>
+                <action android:name="refresh_wallpaper" />
+            </intent-filter>
+        </receiver>
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
