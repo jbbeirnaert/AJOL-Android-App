@@ -60,6 +60,14 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify);
 
+        //pull wallpaper/default information and modify/add from intent
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+//        String selectedName = selected.get
+//        bundle.getString(WallpaperListActivity.wallpapersBind)
+
+
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -78,13 +86,8 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
             @Override
             public void onClick(View v) {
                 //when user clicks on save create instance
-//                DatabaseLinker myDbLinker = new DatabaseLinker(getApplicationContext());
-//                SQLiteDatabase db = myDbLinker.getWritableDatabase();
-//                ContentValues newImageValues = new ContentValues();
-
-                //insert image into db
-                //newImageValues.put(DatabaseConstants.COLUMN_IMG, image.getText().toString());
-
+                DatabaseLinker myDbLinker = new DatabaseLinker(getApplicationContext());
+                SQLiteDatabase db = myDbLinker.getWritableDatabase();
 
                 Toast toast = Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT);
                 toast.show();
@@ -105,6 +108,20 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
                 imageStream = getContentResolver().openInputStream(imageUri);
                 ImageView imageView = (ImageView) findViewById(R.id.photo_preview);
                 imageView.setImageBitmap(BitmapFactory.decodeStream(imageStream));
+                String imageString = imageUri.toString();
+
+                ContentValues newImageValues = new ContentValues();
+
+                //put image into newImageValues
+                newImageValues.put(DatabaseConstants.COLUMN_IMG, imageString.toString());
+
+                DatabaseLinker myDbLinker = new DatabaseLinker(getApplicationContext());
+                SQLiteDatabase db = myDbLinker.getWritableDatabase();
+
+                //insert image into db
+                String whereClause = DatabaseConstants.COLUMN_NAME + " = " ;
+                db.update(DatabaseConstants.TABLE_WALLPAPERS,newImageValues,"",null);
+//                db.insert(DatabaseConstants.COLUMN_NAME,)
             } catch (FileNotFoundException e) {
                 Toast.makeText(getApplicationContext(), "No image found!", Toast.LENGTH_SHORT).show();
             } finally {
@@ -121,49 +138,8 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
             Toast.makeText(getApplicationContext(),"Image selection cancelled!",Toast.LENGTH_SHORT).show();
         }
 
-        checkLocationPermission();
     }
-
-    public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.title_location_permission)
-                        .setMessage(R.string.text_location_permission)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(ModifyActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION);
-                            }
-                        })
-                        .create()
-                        .show();
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
-
+    
     @Override
     public void onClick(View v) {
         // Create the Intent for Image Gallery.
@@ -223,14 +199,8 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
             wallpapers.add(wallpaper);
         }
         cursor.close();
-//        for(int i=0; i<wallpapers.size(); i++){
-//            mMap.addMarker(new MarkerOptions()
-//                    .position(new LatLng(wallpapers.get(i).x, wallpapers.get(i).y))
-//                    .anchor(0.5f, 0.5f)
-//                    .title(wallpapers.get(i).name)
-//                    .snippet("Radius: " + wallpapers.get(i).radius + "m")
-//            );
-        
+
+
         mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(40.501288, -78.018258))
                 .anchor(0.5f, 0.5f)
@@ -245,19 +215,6 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
 //                .snippet("Radius: 30m")
 //        );
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            // Got last known location. In some rare situations this can be null.
-                            if (location != null){
-                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 15.0f)); // should be the current location
-                                // Logic to handle location object
-                            }
-                        }
-                    });
-        }
     }
 
 }
