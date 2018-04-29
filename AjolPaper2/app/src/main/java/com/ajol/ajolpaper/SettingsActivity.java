@@ -263,7 +263,7 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
         //Owen: set background service for Ajol Paper to refresh the wallpaper when the app UI is closed
         AlarmManager refreshTimer = (AlarmManager) getSystemService(ALARM_SERVICE);
         PendingIntent refreshWallpaperIntent = PendingIntent.getBroadcast(getApplicationContext(),GET_REFRESH_BROADCAST,new Intent(getApplicationContext(),RefreshAlarmReceiver.class),PendingIntent.FLAG_UPDATE_CURRENT);
-        refreshTimer.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),delayMinutes*600,refreshWallpaperIntent); //Owen: uncomment 60 once testing is finished
+        refreshTimer.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),delayMinutes*1000*60,refreshWallpaperIntent); //Owen: uncomment 60 once testing is finished
     }
 }
 
