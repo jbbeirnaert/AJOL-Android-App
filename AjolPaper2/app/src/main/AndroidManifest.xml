@@ -7,6 +7,7 @@
          location permissions for the 'MyLocation' functionality. 
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +16,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!--
+            Owen: register that this app is to be the sent alarm broadcast to update the device wallpaper
+        -->
+        <receiver android:name="com.ajol.ajolpaper.RefreshAlarmReceiver">
+            <intent-filter>
+                <action android:name="refresh_wallpaper" />
+            </intent-filter>
+        </receiver>
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -30,29 +41,31 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".WallpaperListActivity"
-            android:label="@string/title_activity_list">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
+            android:label="@string/title_activity_list"
+            android:launchMode="singleTop"> <!--Owen: when the activity is relaunched, old instances are destroyed-->
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" /> <!--Owen: tell android to send search query to WallpaperListActivity-->
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
+
         <activity
             android:name=".ModifyActivity"
             android:label="@string/title_activity_modify">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
         </activity>
     </application>
 

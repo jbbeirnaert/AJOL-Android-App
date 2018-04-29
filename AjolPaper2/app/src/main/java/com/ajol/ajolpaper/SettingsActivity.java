@@ -1,7 +1,9 @@
 package com.ajol.ajolpaper;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -38,9 +40,10 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
     public static final String WALLPAPER_BUNDLE_Y = "y";
     public static final String WALLPAPER_BUNDLE_R = "r";
     public static final String WALLPAPER_BUNDLE_IMG = "img";
-    public static final String WALLPAPER_BUNDLE_DEFAULT = "default";
+    public static final String WALLPAPER_BUNDLE_IS_NEW = "new";
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public static final int GET_REFRESH_BROADCAST = 0;
 
     private GoogleMap mMap;
     private Button myBGoToWallPaper;
@@ -74,9 +77,11 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
 
         preferences = getSharedPreferences("preferences", MODE_PRIVATE);
 
-        myEtRefreshTime.setText(String.valueOf(preferences.getInt("refreshTime", 30)));
-        mySwitchDefault.setChecked(preferences.getBoolean("useDefault", true));
+        int refreshTime = preferences.getInt("refreshTime", 30);
+        setupBackgroundProcess(refreshTime);
 
+        myEtRefreshTime.setText(String.valueOf(refreshTime));
+        mySwitchDefault.setChecked(preferences.getBoolean("useDefault", true));
 
         myBGoToWallPaper.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,6 +115,9 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
                 editor.putInt("refreshTime", refreshTime);
                 editor.putBoolean("useDefault", mySwitchDefault.isChecked());
                 editor.apply();
+
+                setupBackgroundProcess(refreshTime);
+
                 Toast toast = Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT);
                 toast.show();
             }
@@ -117,10 +125,6 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
 
 
         checkLocationPermission();
-
-
-
-
     }
 
 
@@ -163,10 +167,6 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
             return true;
         }
     }
-
-
-
-
 
     /**
      * Manipulates the map once available.
@@ -257,6 +257,13 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
                         }
                     });
         }
+    }
+
+    private void setupBackgroundProcess(int delayMinutes) {
+        //Owen: set background service for Ajol Paper to refresh the wallpaper when the app UI is closed
+        AlarmManager refreshTimer = (AlarmManager) getSystemService(ALARM_SERVICE);
+        PendingIntent refreshWallpaperIntent = PendingIntent.getBroadcast(getApplicationContext(),GET_REFRESH_BROADCAST,new Intent(getApplicationContext(),RefreshAlarmReceiver.class),PendingIntent.FLAG_UPDATE_CURRENT);
+        refreshTimer.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),delayMinutes*1000*60,refreshWallpaperIntent); //Owen: uncomment 60 once testing is finished
     }
 }
 
