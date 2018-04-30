@@ -60,10 +60,15 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
     private Button choose_button;
     Button save;
     private ImageView image;
+    private String imageUriString = "";
     private FusedLocationProviderClient mFusedLocationClient;
     private Location deviceLocation;
     private boolean isDefault = false;
     private boolean isNew = false;
+    private String name = "";
+    private Double xLocation;
+    private Double yLocation;
+    private Double radius;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,7 +93,8 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
             nameViewParams.topToTop = R.id.parent;
 
             if (!isNew) {
-
+                name = bundle.getString(SettingsActivity.WALLPAPER_BUNDLE_NAME);
+                nameView.setText(name);
             }
         }
         else {
@@ -102,6 +108,13 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
                 getDeviceLocation();
             }
             else {
+                name = bundle.getString(SettingsActivity.WALLPAPER_BUNDLE_NAME);
+                radius = bundle.getDouble(SettingsActivity.WALLPAPER_BUNDLE_R);
+                xLocation = bundle.getDouble(SettingsActivity.WALLPAPER_BUNDLE_X);
+                yLocation = bundle.getDouble(SettingsActivity.WALLPAPER_BUNDLE_Y);
+
+                ((TextView) findViewById(R.id.name)).setText(name);
+                ((TextView) findViewById(R.id.radius)).setText(radius.toString());
 
             }
         }
@@ -118,8 +131,30 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
                 DatabaseLinker myDbLinker = new DatabaseLinker(getApplicationContext());
                 SQLiteDatabase db = myDbLinker.getWritableDatabase();
 
-                Toast toast = Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT);
-                toast.show();
+                ContentValues newEntry = new ContentValues();
+
+                if (!imageUriString.equals("")) {
+                    newEntry.put(DatabaseConstants.COLUMN_IMG, imageUriString);
+                    String targetTable = DatabaseConstants.TABLE_WALLPAPERS;
+
+                    //insert image into db
+                    if (isDefault) {
+                        targetTable = DatabaseConstants.TABLE_DEFAULTS;
+                    }
+
+                    if (isNew) {
+                        db.insert(targetTable,null, newEntry);
+                    }
+                    else {
+                        if (!name.equals("")) {
+                            String whereClause = DatabaseConstants.COLUMN_NAME + " = " + name;
+                            db.update(DatabaseConstants.TABLE_WALLPAPERS, newEntry, "", null);
+                        }
+                    }
+
+                    Toast toast = Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
             }
         });
     }
@@ -149,20 +184,7 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
                 imageStream = getContentResolver().openInputStream(imageUri);
                 ImageView imageView = findViewById(R.id.photo_preview);
                 imageView.setImageBitmap(BitmapFactory.decodeStream(imageStream));
-                String imageString = imageUri.toString();
-
-                ContentValues newImageValues = new ContentValues();
-
-                //put image into newImageValues
-                newImageValues.put(DatabaseConstants.COLUMN_IMG, imageString);
-
-                DatabaseLinker myDbLinker = new DatabaseLinker(getApplicationContext());
-                SQLiteDatabase db = myDbLinker.getWritableDatabase();
-
-                //insert image into db
-                String whereClause = DatabaseConstants.COLUMN_NAME + " = " ;
-                db.update(DatabaseConstants.TABLE_WALLPAPERS,newImageValues,"",null);
-//                db.insert(DatabaseConstants.COLUMN_NAME,)
+                imageUriString = imageUri.toString();
             } catch (FileNotFoundException e) {
                 Toast.makeText(getApplicationContext(), "No image found!", Toast.LENGTH_SHORT).show();
             } finally {
@@ -208,27 +230,16 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(deviceLocation.getLatitude(), deviceLocation.getLongitude()), 15.0f)); // should be the current location
         }
 
-        DatabaseLinker dbHelper = new DatabaseLinker(getApplicationContext());
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        //add wallpaper location to map
+        if (xLocation != null && yLocation != null) {
+            MarkerOptions marker = new MarkerOptions();
+            marker.position(new LatLng(yLocation, xLocation));
+            marker.anchor(0.5f, 0.5f);
+            marker.title(name);
+            marker.snippet("Radius: " + radius + "m");
 
-        final String[] wallpapersBind = {
-                DatabaseConstants._id,
-                DatabaseConstants.COLUMN_NAME,
-                DatabaseConstants.COLUMN_X,
-                DatabaseConstants.COLUMN_Y,
-                DatabaseConstants.COLUMN_RADIUS,
-                DatabaseConstants.COLUMN_IMG
-        };
-
-        Cursor cursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, //table to query
-                wallpapersBind,
-                null, //columns for where, Null will return all rows
-                null, //values for where
-                null, //Group By, null is no group by
-                null, //Having, null says return all rows
-                null
-        );
-
+            mMap.addMarker(marker);
+        }
     }
 
 }
