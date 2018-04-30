@@ -255,7 +255,6 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
                             // Got last known location. In some rare situations this can be null.
                             if (location != null){
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 15.0f)); // should be the current location
-                                // Logic to handle location object
                             }
                         }
                     });

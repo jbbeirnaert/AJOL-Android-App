@@ -232,19 +232,19 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        //Owen: move map to current location if defined
-        if (deviceLocation != null) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(deviceLocation.getLatitude(), deviceLocation.getLongitude()), 15.0f)); // should be the current location
-        }
-
         //add wallpaper location to map
         if (xLocation != null && yLocation != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(yLocation, xLocation), 15.0f));
+
             markerOptions.position(new LatLng(yLocation, xLocation));
             markerOptions.anchor(0.5f, 0.5f);
             markerOptions.title(name);
             markerOptions.snippet("Radius: " + radius + "m");
 
             marker = mMap.addMarker(markerOptions);
+        }
+        else if (deviceLocation != null) { //Owen: move map to current location if defined
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(deviceLocation.getLatitude(), deviceLocation.getLongitude()), 15.0f)); // should be the current location
         }
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {

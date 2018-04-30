@@ -415,6 +415,8 @@ public class WallpaperListActivity extends AppCompatActivity {
 
         bundle.putBoolean(SettingsActivity.IS_GOING_TO_DEFAULT,getDefaults);
         bundle.putBoolean(SettingsActivity.WALLPAPER_BUNDLE_IS_NEW,true);
+
+        addIntent.putExtras(bundle);
         startActivity(addIntent);
     }
 }
