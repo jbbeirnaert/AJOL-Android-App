@@ -42,8 +42,11 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
     public static final String WALLPAPER_BUNDLE_IMG = "img";
     public static final String WALLPAPER_BUNDLE_IS_NEW = "new";
 
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 100;
+    public static final int MY_PERMISSIONS_REQUEST_GALLERY = 110;
+
     public static final int GET_REFRESH_BROADCAST = 0;
+    public static final int LOAD_IMAGE_RESULTS = 1;
 
     private GoogleMap mMap;
     private Button myBGoToWallPaper;
@@ -222,7 +225,7 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
         cursor.close();
         for(int i=0; i<wallpapers.size(); i++){
             mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(wallpapers.get(i).x, wallpapers.get(i).y))
+                    .position(new LatLng(wallpapers.get(i).y, wallpapers.get(i).x))
                     .anchor(0.5f, 0.5f)
                     .title(wallpapers.get(i).name)
                     .snippet("Radius: " + wallpapers.get(i).radius + "m")

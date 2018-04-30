@@ -1,12 +1,16 @@
 package com.ajol.ajolpaper;
 
+import android.Manifest;
 import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -87,6 +91,9 @@ public class WallpaperListActivity extends AppCompatActivity {
         //use toolbar in activity_list as the action bar
         listToolbar = findViewById(R.id.list_toolbar);
         setSupportActionBar(listToolbar);
+
+        //get permission to show photo previews
+        accessGallery();
 
         //connect to database
         dbLinker = new DatabaseLinker(getApplicationContext());
@@ -255,6 +262,31 @@ public class WallpaperListActivity extends AppCompatActivity {
         }
     }
 
+    //Owen: get permission to access gallery and pull wallpaper previews
+    public void accessGallery() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            String[] galleryPermissions = new String[] {
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+            };
+
+            ActivityCompat.requestPermissions(this, galleryPermissions, SettingsActivity.MY_PERMISSIONS_REQUEST_GALLERY);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == SettingsActivity.MY_PERMISSIONS_REQUEST_GALLERY) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this,"Gallery request approved!",Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(this,"Gallery request denied.",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     //Owen: for testing add 5 example wallpapers
     //Owen: NOTE that this does not satisfy the assumption that all wallpaper names are unique
     public void populateWallpapers(int n) {
@@ -262,40 +294,40 @@ public class WallpaperListActivity extends AppCompatActivity {
 
             ContentValues values = new ContentValues();
             values.put(DatabaseConstants.COLUMN_NAME, "BAC");
-            values.put(DatabaseConstants.COLUMN_X, 40.501288);
-            values.put(DatabaseConstants.COLUMN_Y, -78.018258);
+            values.put(DatabaseConstants.COLUMN_Y, 40.501288);
+            values.put(DatabaseConstants.COLUMN_X, -78.018258);
             values.put(DatabaseConstants.COLUMN_RADIUS, (double) 15);
             values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
             db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
 
             values.clear();
             values.put(DatabaseConstants.COLUMN_NAME, "Ellis Hall");
-            values.put(DatabaseConstants.COLUMN_X, 40.500404);
-            values.put(DatabaseConstants.COLUMN_Y, -78.014396);
+            values.put(DatabaseConstants.COLUMN_Y, 40.500404);
+            values.put(DatabaseConstants.COLUMN_X, -78.014396);
             values.put(DatabaseConstants.COLUMN_RADIUS, (double) 30);
             values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
             db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
 
             values.clear();
             values.put(DatabaseConstants.COLUMN_NAME, "TNT");
-            values.put(DatabaseConstants.COLUMN_X, 40.502137);
-            values.put(DatabaseConstants.COLUMN_Y, -78.017113);
+            values.put(DatabaseConstants.COLUMN_Y, 40.502137);
+            values.put(DatabaseConstants.COLUMN_X, -78.017113);
             values.put(DatabaseConstants.COLUMN_RADIUS, (double) 40);
             values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
             db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
 
             values.clear();
             values.put(DatabaseConstants.COLUMN_NAME, "Good Hall");
-            values.put(DatabaseConstants.COLUMN_X, 40.499451);
-            values.put(DatabaseConstants.COLUMN_Y, -78.017825);
+            values.put(DatabaseConstants.COLUMN_Y, 40.499451);
+            values.put(DatabaseConstants.COLUMN_X, -78.017825);
             values.put(DatabaseConstants.COLUMN_RADIUS, (double) 30);
             values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
             db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);
 
             values.clear();
             values.put(DatabaseConstants.COLUMN_NAME, "Stone Church");
-            values.put(DatabaseConstants.COLUMN_X, 40.498488);
-            values.put(DatabaseConstants.COLUMN_Y, -78.016745);
+            values.put(DatabaseConstants.COLUMN_Y, 40.498488);
+            values.put(DatabaseConstants.COLUMN_X, -78.016745);
             values.put(DatabaseConstants.COLUMN_RADIUS, (double) 20);
             values.put(DatabaseConstants.COLUMN_IMG, "URLImage");
             db.insert(DatabaseConstants.TABLE_WALLPAPERS, null, values);

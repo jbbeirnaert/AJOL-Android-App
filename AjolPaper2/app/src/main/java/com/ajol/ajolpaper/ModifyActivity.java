@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +37,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -56,12 +58,11 @@ import static com.ajol.ajolpaper.SettingsActivity.MY_PERMISSIONS_REQUEST_LOCATIO
 
 public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener {
     private GoogleMap mMap;
-    private static int LOAD_IMAGE_RESULTS = 1;
     private Button choose_button;
     Button save;
     private ImageView image;
     private String imageUriString = "";
-    private FusedLocationProviderClient mFusedLocationClient;
+//    private FusedLocationProviderClient mFusedLocationClient;
     private Location deviceLocation;
     private boolean isDefault = false;
     private boolean isNew = false;
@@ -69,6 +70,8 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
     private Double xLocation;
     private Double yLocation;
     private Double radius;
+    private MarkerOptions markerOptions = new MarkerOptions();
+    private Marker marker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,7 +86,7 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
 
         if (isDefault) {
             //Owen: remove map view
-            MapView mapView = findViewById(R.id.include);
+            FrameLayout mapView = ((FrameLayout) findViewById(R.id.include));
             ((ViewGroup) mapView.getParent()).removeView(mapView);
 
             //Owen: fix views constrained to deleted mapView
@@ -104,7 +107,7 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
             mapFragment.getMapAsync(this);
 
             if (isNew) {
-                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this); //Owen: this can grab the device location
+//                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this); //Owen: this can grab the device location
                 getDeviceLocation();
             }
             else {
@@ -133,7 +136,8 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
 
                 ContentValues newEntry = new ContentValues();
 
-                if (!imageUriString.equals("")) {
+                if (!name.equals("") && !imageUriString.equals("")) {
+                    newEntry.put(DatabaseConstants.COLUMN_NAME, name);
                     newEntry.put(DatabaseConstants.COLUMN_IMG, imageUriString);
                     String targetTable = DatabaseConstants.TABLE_WALLPAPERS;
 
@@ -141,15 +145,18 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
                     if (isDefault) {
                         targetTable = DatabaseConstants.TABLE_DEFAULTS;
                     }
+                    else {
+                        newEntry.put(DatabaseConstants.COLUMN_X,xLocation);
+                        newEntry.put(DatabaseConstants.COLUMN_Y,yLocation);
+                        newEntry.put(DatabaseConstants.COLUMN_RADIUS,radius);
+                    }
 
                     if (isNew) {
                         db.insert(targetTable,null, newEntry);
                     }
-                    else {
-                        if (!name.equals("")) {
-                            String whereClause = DatabaseConstants.COLUMN_NAME + " = " + name;
-                            db.update(DatabaseConstants.TABLE_WALLPAPERS, newEntry, "", null);
-                        }
+                    else if (!name.equals("")) {
+                        String whereClause = DatabaseConstants.COLUMN_NAME + " = '" + name + "'";
+                        db.update(DatabaseConstants.TABLE_WALLPAPERS, newEntry, whereClause, null);
                     }
 
                     Toast toast = Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT);
@@ -162,14 +169,14 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
     //Owen: adapted from SettingsActivity.checkLocationPermission
     public void getDeviceLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            // Got last known location. In some rare situations this can be null.
-                            deviceLocation = location;
-                        }
-                    });
+//            mFusedLocationClient.getLastLocation()
+//                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+//                        @Override
+//                        public void onSuccess(Location location) {
+//                            // Got last known location. In some rare situations this can be null.
+//                            deviceLocation = location;
+//                        }
+//                    });
         }
     }
 
@@ -208,7 +215,7 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
         Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
         // Start new activity with the LOAD_IMAGE_RESULTS to handle back the results when image is picked from the Image Gallery.
-        startActivityForResult(i, LOAD_IMAGE_RESULTS);
+        startActivityForResult(i, SettingsActivity.LOAD_IMAGE_RESULTS);
     }
 
 
@@ -232,14 +239,37 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
 
         //add wallpaper location to map
         if (xLocation != null && yLocation != null) {
-            MarkerOptions marker = new MarkerOptions();
-            marker.position(new LatLng(yLocation, xLocation));
-            marker.anchor(0.5f, 0.5f);
-            marker.title(name);
-            marker.snippet("Radius: " + radius + "m");
+            markerOptions.position(new LatLng(yLocation, xLocation));
+            markerOptions.anchor(0.5f, 0.5f);
+            markerOptions.title(name);
+            markerOptions.snippet("Radius: " + radius + "m");
 
-            mMap.addMarker(marker);
+            marker = mMap.addMarker(markerOptions);
         }
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                xLocation = latLng.longitude;
+                yLocation = latLng.latitude;
+
+                if (marker == null) {
+                    markerOptions.position(latLng);
+                    markerOptions.anchor(0.5f, 0.5f);
+                    markerOptions.title(name);
+                    markerOptions.snippet("Radius: " + radius + "m");
+
+                    marker = mMap.addMarker(markerOptions);
+                }
+                else {
+                    marker.setPosition(latLng);
+                    marker.setAnchor(0.5f, 0.5f);
+                    marker.setTitle(name);
+                    marker.setSnippet("Radius: " + radius + "m");
+                }
+            }
+        });
     }
+
 
 }

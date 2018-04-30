@@ -96,7 +96,7 @@ public class WallpapersCursorAdapter extends SimpleCursorAdapter {
             imageStream = context.getContentResolver().openInputStream(imageUri);
             photoPreview.setImageBitmap(BitmapFactory.decodeStream(imageStream));
         }
-        catch (FileNotFoundException e) {
+        catch (Exception e) {
             photoPreview.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_settings_black_24dp));
 //            Toast.makeText(context,"Unable to load photo for " + name,Toast.LENGTH_SHORT).show();
         }
