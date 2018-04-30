@@ -1,71 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ModifyActivity"
+    android:id="@+id/list_item"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/list_item">
+    tools:context=".ModifyActivity">
 
-    <include layout="@layout/fragment_map"
-        android:layout_width="match_parent"
+    <include
+        android:id="@+id/include"
+        layout="@layout/fragment_map"
+        android:layout_width="0dp"
         android:layout_height="240dp"
-        android:id="@+id/include" />
-
-    <ImageView
-        android:id="@+id/photo_preview"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_alignBottom="@+id/save_button"
-        android:layout_alignTop="@+id/choose_button"
-        android:layout_marginStart="70dp"
-        android:layout_marginLeft="70dp"
-        android:layout_toEndOf="@+id/choose_button"
-        android:layout_toRightOf="@+id/choose_button"/>
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/include"
-        android:layout_marginStart="17dp"
-        android:layout_marginLeft="70dp"
-        android:layout_marginTop="22dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
         android:text="@string/no_name"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include" />
+
+    <Button
+        android:id="@+id/choose_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/name"
+        android:layout_alignStart="@+id/name"
+        android:layout_below="@+id/radius"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginVertical="16dp"
+        android:text="@string/choose"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
+        app:layout_constraintEnd_toStartOf="@+id/photo_preview"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radius" />
+
+    <ImageView
+        android:id="@+id/photo_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/save_button"
+        android:layout_alignTop="@+id/choose_button"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_toEndOf="@+id/choose_button"
+        android:layout_toRightOf="@+id/choose_button"
+        app:layout_constraintBottom_toBottomOf="@+id/choose_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/choose_button"
+        app:layout_constraintTop_toTopOf="@+id/choose_button"
+        app:srcCompat="@android:drawable/sym_def_app_icon" />
 
     <TextView
         android:id="@+id/radius"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/name"
         android:layout_alignLeft="@+id/name"
+        android:layout_alignStart="@+id/name"
         android:layout_below="@+id/name"
-        android:layout_marginTop="10dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="@string/radius"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/name" />
 
     <Button
         android:id="@+id/save_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/choose_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_alignLeft="@+id/choose_button"
+        android:layout_alignStart="@+id/choose_button"
         android:layout_below="@+id/choose_button"
         android:layout_centerInParent="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="@string/save"
-        android:textAppearance="@style/TextAppearance.AppCompat.Button" />
-        <!--android:layout_alignBottom="@+id/photo_preview"/>-->
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/barrier4" />
 
-    <Button
-        android:id="@+id/choose_button"
+    <android.support.constraint.Barrier
+        android:id="@+id/barrier4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/name"
-        android:layout_alignLeft="@+id/name"
-        android:layout_below="@+id/radius"
-        android:layout_marginVertical="16dp"
-        android:text="@string/choose"
-        android:textAppearance="@style/TextAppearance.AppCompat.Button" />
-</RelativeLayout>
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="photo_preview,choose_button"
+        tools:layout_editor_absoluteY="567dp" />
+
+    <!--android:layout_alignBottom="@+id/photo_preview"/>-->
+</android.support.constraint.ConstraintLayout>

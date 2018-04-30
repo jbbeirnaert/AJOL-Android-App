@@ -2,6 +2,7 @@ package com.ajol.ajolpaper;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,19 +14,25 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -54,6 +61,9 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
     Button save;
     private ImageView image;
     private FusedLocationProviderClient mFusedLocationClient;
+    private Location deviceLocation;
+    private boolean isDefault = false;
+    private boolean isNew = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,26 +73,45 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
         //pull wallpaper/default information and modify/add from intent
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-//        String selectedName = selected.get
-//        bundle.getString(WallpaperListActivity.wallpapersBind)
+        isDefault = bundle.getBoolean(SettingsActivity.IS_GOING_TO_DEFAULT);
+        isNew = bundle.getBoolean(SettingsActivity.WALLPAPER_BUNDLE_IS_NEW);
 
+        if (isDefault) {
+            //Owen: remove map view
+            MapView mapView = findViewById(R.id.include);
+            ((ViewGroup) mapView.getParent()).removeView(mapView);
 
+            //Owen: fix views constrained to deleted mapView
+            TextView nameView = findViewById(R.id.name);
+            ConstraintLayout.LayoutParams nameViewParams = (ConstraintLayout.LayoutParams) nameView.getLayoutParams();
+            nameViewParams.topToBottom = ConstraintLayout.LayoutParams.UNSET;
+            nameViewParams.topToTop = R.id.parent;
 
+            if (!isNew) {
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+            }
+        }
+        else {
+            // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            if (isNew) {
+                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this); //Owen: this can grab the device location
+                getDeviceLocation();
+            }
+            else {
 
-        choose_button = (Button)findViewById(R.id.choose_button);
+            }
+        }
+
+        choose_button = findViewById(R.id.choose_button);
         choose_button.setOnClickListener(this);
-        image = (ImageView)findViewById(R.id.image);
-        save = (Button)findViewById(R.id.save_button);
+        image = findViewById(R.id.image);
+        save = findViewById(R.id.save_button);
 
         save.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View v) {
                 //when user clicks on save create instance
@@ -93,9 +122,21 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
                 toast.show();
             }
         });
-
     }
 
+    //Owen: adapted from SettingsActivity.checkLocationPermission
+    public void getDeviceLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
+                            deviceLocation = location;
+                        }
+                    });
+        }
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -106,14 +147,14 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
             InputStream imageStream = null;
             try {
                 imageStream = getContentResolver().openInputStream(imageUri);
-                ImageView imageView = (ImageView) findViewById(R.id.photo_preview);
+                ImageView imageView = findViewById(R.id.photo_preview);
                 imageView.setImageBitmap(BitmapFactory.decodeStream(imageStream));
                 String imageString = imageUri.toString();
 
                 ContentValues newImageValues = new ContentValues();
 
                 //put image into newImageValues
-                newImageValues.put(DatabaseConstants.COLUMN_IMG, imageString.toString());
+                newImageValues.put(DatabaseConstants.COLUMN_IMG, imageString);
 
                 DatabaseLinker myDbLinker = new DatabaseLinker(getApplicationContext());
                 SQLiteDatabase db = myDbLinker.getWritableDatabase();
@@ -137,7 +178,6 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
         else {
             Toast.makeText(getApplicationContext(),"Image selection cancelled!",Toast.LENGTH_SHORT).show();
         }
-
     }
     
     @Override
@@ -163,6 +203,10 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        //Owen: move map to current location if defined
+        if (deviceLocation != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(deviceLocation.getLatitude(), deviceLocation.getLongitude()), 15.0f)); // should be the current location
+        }
 
         DatabaseLinker dbHelper = new DatabaseLinker(getApplicationContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -176,7 +220,6 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
                 DatabaseConstants.COLUMN_IMG
         };
 
-
         Cursor cursor = db.query(DatabaseConstants.TABLE_WALLPAPERS, //table to query
                 wallpapersBind,
                 null, //columns for where, Null will return all rows
@@ -185,35 +228,6 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
                 null, //Having, null says return all rows
                 null
         );
-        ArrayList<Wallpaper> wallpapers = new ArrayList<Wallpaper>();
-        while(cursor.moveToNext()) {
-            Wallpaper wallpaper = new Wallpaper();
-            wallpaper.name = cursor.getString(
-                    cursor.getColumnIndex(DatabaseConstants.COLUMN_NAME));
-            wallpaper.x = cursor.getDouble(
-                    cursor.getColumnIndexOrThrow(DatabaseConstants.COLUMN_X));
-            wallpaper.y = cursor.getDouble(
-                    cursor.getColumnIndexOrThrow(DatabaseConstants.COLUMN_Y));
-            wallpaper.radius = cursor.getDouble(
-                    cursor.getColumnIndexOrThrow(DatabaseConstants.COLUMN_RADIUS));
-            wallpapers.add(wallpaper);
-        }
-        cursor.close();
-
-
-        mMap.addMarker(new MarkerOptions()
-                .position(new LatLng(40.501288, -78.018258))
-                .anchor(0.5f, 0.5f)
-                .title("BAC")
-                .snippet("Radius: 15m")
-        );
-//
-//        mMap.addMarker(new MarkerOptions()
-//                .position(new LatLng(40.500404, -78.014396))
-//                .anchor(0.5f, 0.5f)
-//                .title("Ellis Hall")
-//                .snippet("Radius: 30m")
-//        );
 
     }
 
