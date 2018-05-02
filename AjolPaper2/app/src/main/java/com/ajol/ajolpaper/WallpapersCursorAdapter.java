@@ -3,8 +3,7 @@ package com.ajol.ajolpaper;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -12,11 +11,6 @@ import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 public class WallpapersCursorAdapter extends SimpleCursorAdapter {
     private boolean getDefaults = true;
@@ -39,7 +33,12 @@ public class WallpapersCursorAdapter extends SimpleCursorAdapter {
 
     @Override
     public void bindView(View view, final Context context, final Cursor cursor) {
-        super.bindView(view, context, cursor);
+        try {
+            super.bindView(view, context, cursor);
+        }
+        catch (Exception e) {
+            Toast.makeText(context,e.getMessage(),Toast.LENGTH_SHORT).show();
+        }
 
         //add units for distance
         TextView radiusView = view.findViewById(R.id.radius);
@@ -87,29 +86,35 @@ public class WallpapersCursorAdapter extends SimpleCursorAdapter {
         });
 
         //show image preview
-        TextView uriHolder = view.findViewById(R.id.uri_holder);
-        Uri imageUri = Uri.parse(uriHolder.getText().toString());
-        InputStream imageStream = null;
+        TextView idHolder = view.findViewById(R.id.id_holder);
+        int id = Integer.parseInt(idHolder.getText().toString());
         ImageView photoPreview = view.findViewById(R.id.photo_preview_list);
+//
+        DatabaseLinker dbLinker = new DatabaseLinker(context);
+        SQLiteDatabase db = dbLinker.getReadableDatabase();
+        String selection = DatabaseConstants._id + " = " + id;
+        Cursor imageCursor;
 
-        try {
-            imageStream = context.getContentResolver().openInputStream(imageUri);
-            photoPreview.setImageBitmap(BitmapFactory.decodeStream(imageStream));
+        if (getDefaults) {
+            imageCursor = db.query(DatabaseConstants.TABLE_DEFAULTS,new String[] {DatabaseConstants.COLUMN_IMG},selection,null,null,null,null);
         }
-        catch (Exception e) {
+        else {
+            imageCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS,new String[] {DatabaseConstants.COLUMN_IMG},selection,null,null,null,null);
+        }
+
+        Bitmap imageBlob = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor,0));
+
+        if (imageBlob != null) {
+            photoPreview.setImageBitmap(imageBlob);
+            Toast.makeText(context,"Image blob: " + imageBlob.getWidth() + "," + imageBlob.getHeight(),Toast.LENGTH_SHORT).show();
+//            photoPreview.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_settings_black_24dp));
+        }
+        else {
             photoPreview.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_settings_black_24dp));
 //            Toast.makeText(context,"Unable to load photo for " + name,Toast.LENGTH_SHORT).show();
         }
-        finally {
-            if (imageStream != null) {
-                try {
-                    imageStream.close();
-                }
-                catch (IOException e) {
-//                    Toast.makeText(context,"Image stream still open!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
+
+        imageCursor.close();
     }
 }
 

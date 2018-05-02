@@ -35,11 +35,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SettingsActivity extends FragmentActivity implements OnMapReadyCallback {
+    public static final String WALLPAPER_BUNDLE_ID = "id";
     public static final String WALLPAPER_BUNDLE_NAME = "name";
     public static final String WALLPAPER_BUNDLE_X = "x";
     public static final String WALLPAPER_BUNDLE_Y = "y";
     public static final String WALLPAPER_BUNDLE_R = "r";
-    public static final String WALLPAPER_BUNDLE_IMG = "img";
     public static final String WALLPAPER_BUNDLE_IS_NEW = "new";
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 100;

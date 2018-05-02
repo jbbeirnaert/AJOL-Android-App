@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -52,15 +53,15 @@ public class WallpaperListActivity extends AppCompatActivity {
     };
 
     public static final String[] wallpapersProjection = {
+            DatabaseConstants._id,
             DatabaseConstants.COLUMN_NAME,
-            DatabaseConstants.COLUMN_RADIUS,
-            DatabaseConstants.COLUMN_IMG
+            DatabaseConstants.COLUMN_RADIUS
     };
 
     public static final int[] wallpapersMappings = {
+            R.id.id_holder,
             R.id.name,
-            R.id.radius,
-            R.id.uri_holder
+            R.id.radius
     };
 
     public static final String[] defaultsBind = {
@@ -70,13 +71,14 @@ public class WallpaperListActivity extends AppCompatActivity {
     };
 
     public static final String[] defaultsProjection = {
+            DatabaseConstants._id,
             DatabaseConstants.COLUMN_NAME,
             DatabaseConstants.COLUMN_IMG
     };
 
     public static final int[] defaultsMappings = {
-            R.id.name,
-            R.id.uri_holder
+            R.id.id_holder,
+            R.id.name
     };
 
     private boolean wasDefaults = false;
@@ -91,9 +93,6 @@ public class WallpaperListActivity extends AppCompatActivity {
         //use toolbar in activity_list as the action bar
         listToolbar = findViewById(R.id.list_toolbar);
         setSupportActionBar(listToolbar);
-
-        //get permission to show photo previews
-        accessGallery();
 
         //connect to database
         dbLinker = new DatabaseLinker(getApplicationContext());
@@ -134,8 +133,8 @@ public class WallpaperListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
                 //this should store the wallpaper from wallpapers[] in selected
                 Cursor selected = (Cursor) listView.getItemAtPosition(position);
+                int selectedId = Integer.parseInt(selected.getString(selected.getColumnIndex(DatabaseConstants._id)));
                 String selectedName = selected.getString(selected.getColumnIndex(DatabaseConstants.COLUMN_NAME));
-                String selectedImg = selected.getString(selected.getColumnIndex(DatabaseConstants.COLUMN_IMG));
 
                 //create intent to start ModifyActivity
                 Intent editIntent = new Intent(getApplicationContext(), ModifyActivity.class);
@@ -143,9 +142,9 @@ public class WallpaperListActivity extends AppCompatActivity {
                 //pass the wallpaper that needs to be modified to the intent
                 Bundle wallpaperBundle = new Bundle();
                 wallpaperBundle.putBoolean(SettingsActivity.IS_GOING_TO_DEFAULT,getDefaults);
+                wallpaperBundle.putInt(SettingsActivity.WALLPAPER_BUNDLE_ID,selectedId);
                 wallpaperBundle.putBoolean(SettingsActivity.WALLPAPER_BUNDLE_IS_NEW,false);
                 wallpaperBundle.putString(SettingsActivity.WALLPAPER_BUNDLE_NAME,selectedName);
-                wallpaperBundle.putString(SettingsActivity.WALLPAPER_BUNDLE_IMG,selectedImg);
 
                 if (!getDefaults) {
                     Double selectedX = selected.getDouble(selected.getColumnIndex(DatabaseConstants.COLUMN_X));
@@ -166,13 +165,13 @@ public class WallpaperListActivity extends AppCompatActivity {
 
         handleIntent(getIntent());
 
-        if (searchTerms.size() == 0) {
-            if (getDefaults) {
-                populateDefaults(5);
-            } else {
-                populateWallpapers(5);
-            }
-        }
+//        if (searchTerms.size() == 0) {
+//            if (getDefaults) {
+//                populateDefaults(5);
+//            } else {
+//                populateWallpapers(5);
+//            }
+//        }
     }
 
     @Override
@@ -210,9 +209,16 @@ public class WallpaperListActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        db.close();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         db.close();
+        dbLinker.close();
     }
 
     @Override
@@ -258,31 +264,6 @@ public class WallpaperListActivity extends AppCompatActivity {
 
                 wallpapersCursorAdapter.changeCursor(wallpapersCursor);
                 wallpapersCursorAdapter.notifyDataSetChanged();
-            }
-        }
-    }
-
-    //Owen: get permission to access gallery and pull wallpaper previews
-    public void accessGallery() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-            String[] galleryPermissions = new String[] {
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-            };
-
-            ActivityCompat.requestPermissions(this, galleryPermissions, SettingsActivity.MY_PERMISSIONS_REQUEST_GALLERY);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == SettingsActivity.MY_PERMISSIONS_REQUEST_GALLERY) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this,"Gallery request approved!",Toast.LENGTH_SHORT).show();
-            }
-            else {
-                Toast.makeText(this,"Gallery request denied.",Toast.LENGTH_SHORT).show();
             }
         }
     }

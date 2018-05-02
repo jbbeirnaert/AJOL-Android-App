@@ -21,13 +21,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
+    <EditText
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/include"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
+        android:inputType="textPersonName"
+        android:singleLine="true"
         android:text="@string/no_name"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textSize="24sp"
@@ -71,20 +73,31 @@
         app:srcCompat="@android:drawable/sym_def_app_icon" />
 
     <TextView
-        android:id="@+id/radius"
+        android:id="@+id/radius_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/name"
-        android:layout_alignStart="@+id/name"
-        android:layout_below="@+id/name"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="@string/radius"
+        android:text="@string/radius_label"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/name" />
+
+    <EditText
+        android:id="@+id/radius"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:inputType="phone"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:text="@string/radius_value"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/radius_label"
+        app:layout_constraintLeft_toRightOf="@+id/radius_label" />
 
     <Button
         android:id="@+id/save_button"
@@ -110,10 +123,13 @@
     <android.support.constraint.Barrier
         android:id="@+id/barrier4"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:barrierDirection="bottom"
         app:constraint_referenced_ids="photo_preview,choose_button"
-        tools:layout_editor_absoluteY="567dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!--android:layout_alignBottom="@+id/photo_preview"/>-->
 </android.support.constraint.ConstraintLayout>

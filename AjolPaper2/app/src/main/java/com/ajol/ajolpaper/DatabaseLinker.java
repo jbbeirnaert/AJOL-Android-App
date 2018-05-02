@@ -9,7 +9,7 @@ public class DatabaseLinker extends SQLiteOpenHelper {
     private static final String SPACE = " ";
     private static final String TEXT_TYPE = "text";
     private static final String ZONE_TYPE = "double";
-    private static final String IMG_TYPE = "string"; //Owen: I think images will be URI strings.
+    private static final String IMG_TYPE = "BLOB"; //Owen: URI's have temporary access, so we need a local copy.
 
     private static final String CREATE_TABLE = "create table";
     private static final String DROP_TABLE = "drop table if exists";

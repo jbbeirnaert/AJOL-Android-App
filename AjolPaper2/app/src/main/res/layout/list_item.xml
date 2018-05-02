@@ -40,7 +40,7 @@
         android:layout_centerInParent="true"
         android:layout_marginHorizontal="16dp"
         android:layout_marginVertical="8dp"
-        android:text="@string/radius"
+        android:text="@string/radius_label"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:textColor="@android:color/black"
@@ -79,7 +79,7 @@
         app:layout_constraintTop_toTopOf="@+id/photo_preview_list" />
 
     <TextView
-        android:id="@+id/uri_holder"
+        android:id="@+id/id_holder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintRight_toRightOf="parent"

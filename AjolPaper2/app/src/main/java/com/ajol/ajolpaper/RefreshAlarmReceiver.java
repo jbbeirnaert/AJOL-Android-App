@@ -21,6 +21,7 @@ import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 public class RefreshAlarmReceiver extends BroadcastReceiver {
@@ -36,8 +37,8 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
-
-                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                //Owen: this can return null if no apps have calculated the device's current location
+                Location location = getLastKnownLocation(locationManager,context);
 
                 if (location != null) {
                     Toast.makeText(context,"Location: " + location.getLongitude() + "," + location.getLatitude(),Toast.LENGTH_SHORT).show();
@@ -48,11 +49,11 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
                         deviceWallpaperManager.setBitmap(imageData);
                     }
                     else {
-                        Toast.makeText(context,"Ajol Paper failed to use the wallpapers!",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context,"Background: failed to use the wallpapers!",Toast.LENGTH_SHORT).show();
                     }
                 }
                 else {
-                    Toast.makeText(context,"Ajol Paper failed to read location!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context,"Background: device location is unknown!",Toast.LENGTH_SHORT).show();
                 }
             }
             else if (useDefaults) {
@@ -62,14 +63,40 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
                     deviceWallpaperManager.setBitmap(imageData);
                 }
                 else {
-                    Toast.makeText(context,"Ajol Paper failed to use the defaults!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context,"Background: failed to use the defaults!",Toast.LENGTH_SHORT).show();
                 }
             }
         }
         catch (Exception exception) {
             //Owen: show failure
-            Toast.makeText(context,"Ajol Paper failed to change the wallpaper!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,"Background failed to change the wallpaper! " + exception.getMessage(),Toast.LENGTH_SHORT).show();
         }
+    }
+
+    //Owen: uses any available providers
+    private Location getLastKnownLocation(LocationManager locationManager, Context context) {
+        List<String> providers = locationManager.getProviders(true);
+        Location bestLocation = null;
+
+        for (String provider : providers) {
+            try {
+                Location l = locationManager.getLastKnownLocation(provider);
+
+                if (l == null) {
+                    continue;
+                }
+                if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                    bestLocation = l;
+                }
+            }
+            catch (SecurityException exception) {
+                Toast.makeText(context,"Background: location is unknown.",Toast.LENGTH_SHORT).show();
+            }
+        }
+        if (bestLocation == null) {
+            return null;
+        }
+        return bestLocation;
     }
 
     @Nullable
@@ -88,16 +115,12 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
         if (index > -1) {
             cursor.moveToPosition(index);
 
-            Uri defaultUri = Uri.parse(cursor.getString(cursor.getColumnIndex(DatabaseConstants.COLUMN_IMG)));
-
-            try {
-                return BitmapFactory.decodeStream(context.getContentResolver().openInputStream(defaultUri));
-            }
-            catch (Exception e) {
-                return null;
-            }
+            Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor,index));
+            return imageBitmap;
         }
         else {
+            cursor.close();
+            db.close();
             return null;
         }
     }
@@ -119,16 +142,12 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
         if (index > -1) {
             cursor.moveToPosition(index);
 
-            Uri defaultUri = Uri.parse(cursor.getString(cursor.getColumnIndex(DatabaseConstants.COLUMN_IMG)));
-
-            try {
-                return BitmapFactory.decodeStream(context.getContentResolver().openInputStream(defaultUri));
-            }
-            catch (Exception e) {
-                return null;
-            }
+            Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor,index));
+            return imageBitmap;
         }
         else {
+            cursor.close();
+            db.close();
             return null;
         }
     }
