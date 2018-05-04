@@ -11,14 +11,19 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.icu.text.DecimalFormat;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.List;
@@ -150,5 +155,33 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
             db.close();
             return null;
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private boolean DoesLocationIsInWallPaper(LatLng currentLocation, LatLng wallPaperLocation, int radius){
+
+        int Radius = 6371;// radius of earth in Km
+        double lat1 = currentLocation.latitude;
+        double lat2 = wallPaperLocation.latitude;
+        double lon1 = currentLocation.longitude;
+        double lon2 = wallPaperLocation.longitude;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                * Math.sin(dLon / 2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        double valueResult = Radius * c;
+        //double km = valueResult / 1;
+        DecimalFormat newFormat = new DecimalFormat("####");
+        //int kmInDec = Integer.valueOf(newFormat.format(km));
+        double meter = valueResult % 1000;
+        int meterInDec = Integer.valueOf(newFormat.format(meter));
+        //Log.i("Radius Value", "" + valueResult + "   KM  " + kmInDec
+                //+ " Meter   " + meterInDec);
+
+        return meterInDec<=radius;
+
     }
 }
