@@ -9,10 +9,11 @@
 
     <ImageView
         android:id="@+id/photo_preview_list"
-        android:layout_width="100dp"
-        android:layout_height="160dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_margin="8dp"
-        android:background="@android:color/darker_gray"
+        android:layout_marginBottom="16dp"
+        android:background="#00aaaaaa"
         android:contentDescription="@string/no_image"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -82,11 +83,11 @@
         android:id="@+id/id_holder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/photo_preview_list"
         android:text="@string/uri"
-        android:textColor="@android:color/black"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:visibility="visible"/>
+        android:textColor="@android:color/black"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/photo_preview_list"
+        app:layout_constraintRight_toRightOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

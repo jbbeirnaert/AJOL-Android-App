@@ -16,7 +16,7 @@ public class WallpapersCursorAdapter extends SimpleCursorAdapter {
     private boolean getDefaults = true;
 
     public WallpapersCursorAdapter(Context context, int rowLayout, Cursor cursor, String[] projection, int[] mappings) { //Owen: the tutorial had objects as a List type, but that didn't work with super()...
-        super(context, rowLayout, cursor, projection, mappings);
+        super(context, rowLayout, cursor, projection, mappings,0);
 
         //check whether the cursor is connected to the wallpapers table or to the defaults table
         for (int i=0; i<projection.length && getDefaults; i++) {
@@ -104,7 +104,7 @@ public class WallpapersCursorAdapter extends SimpleCursorAdapter {
 
         imageCursor.moveToFirst();
         String imagePath = imageCursor.getString(imageCursor.getColumnIndex(DatabaseConstants.COLUMN_IMG));
-        ImageBitmapFromPath loadBitmap = new ImageBitmapFromPath(imagePath);
+        ImageBitmapFromPath loadBitmap = new ImageBitmapFromPath(imagePath); //Owen: this ended up being a bit faster than using an async task, but they're both done badly
         (new Thread(loadBitmap)).start();
 
         while (loadBitmap.imageBitmap == null) {
@@ -122,5 +122,3 @@ public class WallpapersCursorAdapter extends SimpleCursorAdapter {
         imageCursor.close();
     }
 }
-
-//Owen: see this for how to improve the above using convertView: http://www.worldbestlearningcenter.com/tips/Android-ListView-item-and-button-clickable.htm

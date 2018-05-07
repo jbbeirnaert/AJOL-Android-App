@@ -1,20 +1,19 @@
 package com.ajol.ajolpaper;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -23,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -48,7 +48,6 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
     Button save;
     private ImageView image;
     private String imagePath = "";
-//    private byte[] imageBlob; //Owen: for storing a copy of the image
     private FusedLocationProviderClient mFusedLocationClient;
     private Location deviceLocation;
 
@@ -79,6 +78,22 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
             //Owen: remove map view
             FrameLayout mapView = findViewById(R.id.include);
             ((ViewGroup) mapView.getParent()).removeView(mapView);
+
+            //Owen: remove radius view
+            TextView radiusLabelView = findViewById(R.id.radius_label);
+            TextView radiusView = findViewById(R.id.radius);
+            ViewGroup parentView = (ViewGroup) radiusLabelView.getParent();
+
+            Button imgButton = findViewById(R.id.choose_button);
+            ConstraintLayout modifyLayout = findViewById(R.id.modify_activity);
+
+            ConstraintSet buttonConstraint = new ConstraintSet();
+            buttonConstraint.clone(modifyLayout);
+            buttonConstraint.connect(imgButton.getId(),ConstraintSet.TOP,R.id.name,ConstraintSet.BOTTOM,8);
+            buttonConstraint.applyTo(modifyLayout);
+
+            parentView.removeView(radiusView);
+            parentView.removeView(radiusLabelView);
 
             //Owen: fix views constrained to deleted mapView
             EditText nameView = findViewById(R.id.name);
@@ -130,12 +145,14 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
         if (!isNew) {
             imageCursor.moveToFirst();
             imagePath = imageCursor.getString(imageCursor.getColumnIndex(DatabaseConstants.COLUMN_IMG));
+
+            Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(imageCursor, this, 80, 80));
+            if (imageBitmap != null) {
+                ImageView photoPreview = findViewById(R.id.photo_preview);
+                photoPreview.setImageBitmap(imageBitmap);
+            }
         }
-        Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(imageCursor,0,this));
-        if (imageBitmap != null) {
-            ImageView photoPreview = findViewById(R.id.photo_preview);
-            photoPreview.setImageBitmap(imageBitmap);
-        }
+
         db.close();
         dbLinker.close();
 
@@ -198,6 +215,10 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
                         public void onSuccess(Location location) {
                             // Got last known location. In some rare situations this can be null.
                             deviceLocation = location;
+
+                            if (mMap != null && isNew) {
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(deviceLocation.getLatitude(),deviceLocation.getLongitude()), 15.0f));
+                            }
                         }
                     });
         }

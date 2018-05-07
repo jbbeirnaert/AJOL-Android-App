@@ -5,12 +5,14 @@ import android.database.Cursor;
 
 public class ImageBitmapArgs {
     public Cursor cursor;
-    public int index;
     public Context context;
+    public int width;
+    public int height;
 
-    public ImageBitmapArgs(Cursor cursor, int index, Context context) {
+    public ImageBitmapArgs(Cursor cursor, Context context, int width, int height) {
         this.cursor = cursor;
-        this.index = index;
         this.context = context;
+        this.width = width;
+        this.height = height;
     }
 }

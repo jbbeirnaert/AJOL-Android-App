@@ -10,23 +10,14 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.icu.text.DecimalFormat;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
@@ -125,7 +116,7 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
 
         Cursor cursor = db.query(DatabaseConstants.TABLE_DEFAULTS,projection,null,null,null,null,null);
         Random randomizer = new Random();
-        int index = randomizer.nextInt(cursor.getCount()-1);
+        int index = randomizer.nextInt(cursor.getCount());
 
         if (index > -1) {
             cursor.moveToPosition(index);
@@ -133,7 +124,7 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
             int id = cursor.getInt(cursor.getColumnIndex(DatabaseConstants._id));
             cursor = db.query(DatabaseConstants.TABLE_DEFAULTS,projection,DatabaseConstants._id + " = " + id,null,null,null,null);
 
-            Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor,0,context));
+            Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor, context, -1, -1));
             cursor.close();
             return imageBitmap;
         }
@@ -172,7 +163,7 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
 
                 cursor = db.query(DatabaseConstants.TABLE_WALLPAPERS,projection,DatabaseConstants._id + " = " + id,null,null,null,null);
 
-                return (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor,0,context));
+                return (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor, context, -1, -1));
             }
             else {
                 i++;
