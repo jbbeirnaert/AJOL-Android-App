@@ -102,16 +102,21 @@ public class WallpapersCursorAdapter extends SimpleCursorAdapter {
             imageCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS,new String[] {DatabaseConstants.COLUMN_IMG},selection,null,null,null,null);
         }
 
-        Bitmap imageBlob = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor,0));
+        imageCursor.moveToFirst();
+        String imagePath = imageCursor.getString(imageCursor.getColumnIndex(DatabaseConstants.COLUMN_IMG));
+        ImageBitmapFromPath loadBitmap = new ImageBitmapFromPath(imagePath);
+        (new Thread(loadBitmap)).start();
 
-        if (imageBlob != null) {
-            photoPreview.setImageBitmap(imageBlob);
-            Toast.makeText(context,"Image blob: " + imageBlob.getWidth() + "," + imageBlob.getHeight(),Toast.LENGTH_SHORT).show();
-//            photoPreview.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_settings_black_24dp));
+        while (loadBitmap.imageBitmap == null) {
+        }
+//        Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(imageCursor,0, context));
+
+        if (loadBitmap.imageBitmap != null) {
+            photoPreview.setImageBitmap(loadBitmap.imageBitmap);
+
         }
         else {
-            photoPreview.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_settings_black_24dp));
-//            Toast.makeText(context,"Unable to load photo for " + name,Toast.LENGTH_SHORT).show();
+            photoPreview.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_settings_black_24dp,null));
         }
 
         imageCursor.close();

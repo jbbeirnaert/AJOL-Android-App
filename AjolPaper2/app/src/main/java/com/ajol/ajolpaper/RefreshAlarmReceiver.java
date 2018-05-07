@@ -18,6 +18,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
@@ -46,8 +47,7 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
                 Location location = getLastKnownLocation(locationManager,context);
 
                 if (location != null) {
-                    Toast.makeText(context,"Location: " + location.getLongitude() + "," + location.getLatitude(),Toast.LENGTH_SHORT).show();
-
+//                    Toast.makeText(context,"Location: " + location.getLongitude() + "," + location.getLatitude(),Toast.LENGTH_SHORT).show();
                     Bitmap imageData = getWallpaper(context,location);
 
                     if (imageData != null) {
@@ -55,6 +55,15 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
                     }
                     else {
                         Toast.makeText(context,"Background: failed to use the wallpapers!",Toast.LENGTH_SHORT).show();
+
+                        imageData = getRandomDefault(context);
+
+                        if (imageData != null) {
+                            deviceWallpaperManager.setBitmap(imageData);
+                        }
+                        else {
+                            Toast.makeText(context,"Background: failed to use the defaults!",Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
                 else {
@@ -110,6 +119,7 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
         SQLiteDatabase db = dbLinker.getWritableDatabase();
 
         String[] projection = {
+                DatabaseConstants._id,
                 DatabaseConstants.COLUMN_IMG
         };
 
@@ -120,7 +130,11 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
         if (index > -1) {
             cursor.moveToPosition(index);
 
-            Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor,index));
+            int id = cursor.getInt(cursor.getColumnIndex(DatabaseConstants._id));
+            cursor = db.query(DatabaseConstants.TABLE_DEFAULTS,projection,DatabaseConstants._id + " = " + id,null,null,null,null);
+
+            Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor,0,context));
+            cursor.close();
             return imageBitmap;
         }
         else {
@@ -137,51 +151,45 @@ public class RefreshAlarmReceiver extends BroadcastReceiver {
         SQLiteDatabase db = dbLinker.getWritableDatabase();
 
         String[] projection = {
-                DatabaseConstants.COLUMN_IMG
+                DatabaseConstants._id,
+                DatabaseConstants.COLUMN_IMG,
+                DatabaseConstants.COLUMN_X,
+                DatabaseConstants.COLUMN_Y,
+                DatabaseConstants.COLUMN_RADIUS
         };
 
         Cursor cursor = db.query(DatabaseConstants.TABLE_WALLPAPERS,projection,null,null,null,null,null);
-        Random randomizer = new Random();
-        int index = randomizer.nextInt(cursor.getCount()-1);
 
-        if (index > -1) {
-            cursor.moveToPosition(index);
+        int i = 0;
+//        cursor.moveToFirst();
 
-            Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor,index));
-            return imageBitmap;
+        while (i < cursor.getCount()) {
+            cursor.moveToPosition(i);
+            LatLng wallpaperLocation = new LatLng(cursor.getDouble(cursor.getColumnIndex(DatabaseConstants.COLUMN_Y)),cursor.getDouble(cursor.getColumnIndex(DatabaseConstants.COLUMN_X)));
+
+            if (isLocationInZone(location,wallpaperLocation,cursor.getDouble(cursor.getColumnIndex(DatabaseConstants.COLUMN_RADIUS)))) {
+                int id = cursor.getInt(cursor.getColumnIndex(DatabaseConstants._id));
+
+                cursor = db.query(DatabaseConstants.TABLE_WALLPAPERS,projection,DatabaseConstants._id + " = " + id,null,null,null,null);
+
+                return (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(cursor,0,context));
+            }
+            else {
+                i++;
+            }
         }
-        else {
-            cursor.close();
-            db.close();
-            return null;
-        }
+        cursor.close();
+
+        return null;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private boolean DoesLocationIsInWallPaper(LatLng currentLocation, LatLng wallPaperLocation, int radius){
+    private boolean isLocationInZone(Location currentLocation, LatLng wallpaperLocation, double radius) {
+        Location zone = new Location("");
+        zone.setLatitude(wallpaperLocation.latitude);
+        zone.setLongitude(wallpaperLocation.longitude);
 
-        int Radius = 6371;// radius of earth in Km
-        double lat1 = currentLocation.latitude;
-        double lat2 = wallPaperLocation.latitude;
-        double lon1 = currentLocation.longitude;
-        double lon2 = wallPaperLocation.longitude;
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(Math.toRadians(lat1))
-                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
-                * Math.sin(dLon / 2);
-        double c = 2 * Math.asin(Math.sqrt(a));
-        double valueResult = Radius * c;
-        //double km = valueResult / 1;
-        DecimalFormat newFormat = new DecimalFormat("####");
-        //int kmInDec = Integer.valueOf(newFormat.format(km));
-        double meter = valueResult % 1000;
-        int meterInDec = Integer.valueOf(newFormat.format(meter));
-        //Log.i("Radius Value", "" + valueResult + "   KM  " + kmInDec
-                //+ " Meter   " + meterInDec);
+        Float distance = currentLocation.distanceTo(zone);
 
-        return meterInDec<=radius;
-
+        return distance <= radius;
     }
 }

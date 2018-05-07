@@ -1,15 +1,19 @@
 package com.ajol.ajolpaper;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -32,9 +36,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-
 /**
  * Created by owengallagher on 3/29/18.
  * Updated by Linh Dang on 4/12/18.
@@ -46,7 +47,8 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
     private Button choose_button;
     Button save;
     private ImageView image;
-    private byte[] imageBlob;
+    private String imagePath = "";
+//    private byte[] imageBlob; //Owen: for storing a copy of the image
     private FusedLocationProviderClient mFusedLocationClient;
     private Location deviceLocation;
 
@@ -123,9 +125,13 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
             imageCursor = db.query(DatabaseConstants.TABLE_DEFAULTS,new String[] {DatabaseConstants.COLUMN_IMG},selection,null,null,null,null);
         }
         else {
-            imageCursor = db.query(DatabaseConstants.TABLE_DEFAULTS,new String[] {DatabaseConstants.COLUMN_IMG},selection,null,null,null,null);
+            imageCursor = db.query(DatabaseConstants.TABLE_WALLPAPERS,new String[] {DatabaseConstants.COLUMN_IMG},selection,null,null,null,null);
         }
-        Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(imageCursor,0));
+        if (!isNew) {
+            imageCursor.moveToFirst();
+            imagePath = imageCursor.getString(imageCursor.getColumnIndex(DatabaseConstants.COLUMN_IMG));
+        }
+        Bitmap imageBitmap = (new ImageBitmapFromCursor()).doInBackground(new ImageBitmapArgs(imageCursor,0,this));
         if (imageBitmap != null) {
             ImageView photoPreview = findViewById(R.id.photo_preview);
             photoPreview.setImageBitmap(imageBitmap);
@@ -147,14 +153,9 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
                 EditText nameView = findViewById(R.id.name);
                 name = nameView.getText().toString();
 
-                if (!name.equals("")) {
+                if (!name.equals("") && !imagePath.equals("")) {
                     newEntry.put(DatabaseConstants.COLUMN_NAME, name);
-                    if (!(imageBlob == null || imageBlob.length == 0)) {
-                        newEntry.put(DatabaseConstants.COLUMN_IMG, imageBlob);
-                    }
-                    else {
-                        newEntry.put(DatabaseConstants.COLUMN_IMG, new byte[]{});
-                    }
+                    newEntry.put(DatabaseConstants.COLUMN_IMG, imagePath);
                     String targetTable = DatabaseConstants.TABLE_WALLPAPERS;
 
                     //insert image into db
@@ -175,7 +176,7 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
                     }
                     else {
                         String whereClause = DatabaseConstants._id + " = " + id;
-                        db.update(DatabaseConstants.TABLE_WALLPAPERS, newEntry, whereClause, null);
+                        db.update(targetTable, newEntry, whereClause, null);
                     }
 
                     Toast toast = Toast.makeText(getApplicationContext(), "Saved: " + newEntry.toString(), Toast.LENGTH_LONG);
@@ -207,14 +208,85 @@ public class ModifyActivity extends AppCompatActivity implements OnMapReadyCallb
         super.onActivityResult(requestCode, resultCode, data);
 
         if (data != null) {
-            Uri imageUri = data.getData(); //Owen: make sure to save this uri to the database in the wallpapers/defaults table
+            Uri imageUri = data.getData();
+            imagePath = getPathFromUri(imageUri);
             ImageView imageView = findViewById(R.id.photo_preview);
 
-            imageBlob = (new ImageBlob()).doInBackground(new ImageBlobArgs(imageUri,this,imageView));
+            if (gotStorageReadPermission()) {
+                Toast.makeText(this, imagePath, Toast.LENGTH_SHORT).show();
+
+                ImageBitmapFromPath loadBitmap = new ImageBitmapFromPath(imagePath);
+                (new Thread(loadBitmap)).start();
+
+                while (loadBitmap.imageBitmap == null) {
+                    imageView.setImageBitmap(loadBitmap.imageBitmap);
+                }
+                imageView.setImageBitmap(loadBitmap.imageBitmap);
+            }
+            else {
+                Toast.makeText(getApplicationContext(),"Storage access denied.",Toast.LENGTH_SHORT).show();
+            }
         }
         else {
             Toast.makeText(getApplicationContext(),"Image selection cancelled!",Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public String getPathFromUri(Uri uri) {
+        Cursor cursor = null;
+        String output = "";
+        try {
+            String[] proj = { MediaStore.Images.Media.DATA };
+            cursor = this.getContentResolver().query(uri,  proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            output = cursor.getString(column_index);
+        }
+        catch (Exception e) {
+            Toast.makeText(this,"Couldn't get image file path.",Toast.LENGTH_SHORT).show();
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return output;
+    }
+
+    private boolean gotStorageReadPermission() {
+        if (!checkPermissionForReadExternalStorage()) {
+            try {
+                requestPermissionForReadExternalStorage();
+                return true;
+            } catch (Exception e) {
+                Toast.makeText(this, "Couldn't get permission to read external storage.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+        else {
+            return true;
+        }
+    }
+
+    private boolean checkPermissionForReadExternalStorage(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int result = ActivityCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE);
+
+            if (result == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return true;
+        }
+    }
+
+    private void requestPermissionForReadExternalStorage() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, SettingsActivity.MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
     }
     
     @Override

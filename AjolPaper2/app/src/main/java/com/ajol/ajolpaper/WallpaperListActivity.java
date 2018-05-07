@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
@@ -172,6 +173,10 @@ public class WallpaperListActivity extends AppCompatActivity {
 //                populateWallpapers(5);
 //            }
 //        }
+
+        if (!checkPermissionForReadExternalStorage()) {
+            requestPermissionForReadExternalStorage();
+        }
     }
 
     @Override
@@ -211,7 +216,6 @@ public class WallpaperListActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        db.close();
     }
 
     @Override
@@ -399,5 +403,25 @@ public class WallpaperListActivity extends AppCompatActivity {
 
         addIntent.putExtras(bundle);
         startActivity(addIntent);
+    }
+
+    private boolean checkPermissionForReadExternalStorage(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int result = ActivityCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE);
+
+            if (result == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return true;
+        }
+    }
+
+    private void requestPermissionForReadExternalStorage() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, SettingsActivity.MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
     }
 }

@@ -43,7 +43,7 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
     public static final String WALLPAPER_BUNDLE_IS_NEW = "new";
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 100;
-    public static final int MY_PERMISSIONS_REQUEST_GALLERY = 110;
+    public static final int MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 110;
 
     public static final int GET_REFRESH_BROADCAST = 0;
     public static final int LOAD_IMAGE_RESULTS = 1;
@@ -232,24 +232,8 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
             );
         }
 
-//
-//        mMap.addMarker(new MarkerOptions()
-//                .position(new LatLng(40.501288, -78.018258))
-//                .anchor(0.5f, 0.5f)
-//                .title("BAC")
-//                .snippet("Radius: 15m")
-//        );
-//
-//        mMap.addMarker(new MarkerOptions()
-//                .position(new LatLng(40.500404, -78.014396))
-//                .anchor(0.5f, 0.5f)
-//                .title("Ellis Hall")
-//                .snippet("Radius: 30m")
-//        );
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+            mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
                             // Got last known location. In some rare situations this can be null.
