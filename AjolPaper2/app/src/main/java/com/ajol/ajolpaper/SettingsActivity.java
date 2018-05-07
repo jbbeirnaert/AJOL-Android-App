@@ -231,6 +231,8 @@ public class SettingsActivity extends FragmentActivity implements OnMapReadyCall
                     .snippet("Radius: " + wallpapers.get(i).radius + "m")
             );
         }
+        db.close();
+        dbHelper.close();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
