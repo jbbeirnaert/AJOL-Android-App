@@ -12,6 +12,10 @@ Ajol Paper is an android mobile application that allows the user to customize th
 
 - [x] __Photo Selection__: When the user selects a photo in the modify activity the onActivityResult() method from the photo picker stalls the UI thread. I'm not completely sure why. I tried to use AsyncTasks but I'm not sure if I used them correctly. SOLUTION: I partially handled this problem by lowering the image resolution in the preview.
 
+- [ ] __Stalls__: The app does not handle asynchronicity very well with loading images, so the app will easily stall for a few seconds when it encounters any heavy processing/interaction (like scrolling in the list view). SOLUTION: asynchronous loading of images would help greatly, as well as using recycler views for the list view items.
+
+- [ ] __List Empty__: We never added a view to say the wallpapers or defaults database tables are empty.
+
 ## Tasks
 - [x] User Interface
 	- [x] main/settings layout
