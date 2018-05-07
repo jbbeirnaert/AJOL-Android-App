@@ -4,16 +4,16 @@ Ajol Paper is an android mobile application that allows the user to customize th
 ## Known Issues
 - [ ] __Device location__: the lastKnownLocation() function that we use doesn't actually determine the device's location, but rather checks whatever position was returned by the last app on the phone that determined it. This means that if Ajol Paper is the first application opened after connecting to a network, the device's location is unknown.
 
-- [ ] __Images__: we can't store URI references to the photo gallery in the database because they have limited access time-wise. Once the activity that pulled that image from the gallery ends, so does the access with that URI. We also can't really store copies of the images in the database because SQLite cursors have a size limit of 1MB. Images larger than that cause errors when the app tries to read from that cursor. This is what Ajol Paper does currently. The solution appears to be to store a copy of the image in a separate folder in the device file system so URI's to those files have unlimited permissions in the app.
+- [x] __Images__: we can't store URI references to the photo gallery in the database because they have limited access time-wise. Once the activity that pulled that image from the gallery ends, so does the access with that URI. We also can't really store copies of the images in the database because SQLite cursors have a size limit of 1MB. Images larger than that cause errors when the app tries to read from that cursor. This is what Ajol Paper does currently. SOLUTION: get path to image and use that instead of the uri.
 
 - [ ] __Map Display__: The existing wallpapers are not displayed on the map the first time the app is opened. It should be reloaded after permissions are granted. Newly added/modified wallpapers also don't show on the settings activity map, which might be fixed if SettingsActivity had a publicly accessible static variable to keep track of whether the map should be reloaded.
 
 - [ ] __Map Interaction__: If the user clicks on a point in the map in settings the modify/add activity should be started and passed the wallpaper info or new location.
 
-- [ ] __Photo Selection__: When the user selects a photo in the modify activity the onActivityResult() method from the photo picker stalls the UI thread. I'm not completely sure why. I tried to use AsyncTasks but I'm not sure if I used them correctly.
+- [x] __Photo Selection__: When the user selects a photo in the modify activity the onActivityResult() method from the photo picker stalls the UI thread. I'm not completely sure why. I tried to use AsyncTasks but I'm not sure if I used them correctly. SOLUTION: I partially handled this problem by lowering the image resolution in the preview.
 
 ## Tasks
-- [ ] User Interface
+- [x] User Interface
 	- [x] main/settings layout
 		- [x] include map
 		- [x] defaults toggle
@@ -53,9 +53,9 @@ Ajol Paper is an android mobile application that allows the user to customize th
 	- [x] settings
 	- [x] list
 	- [x] modify
-- [ ] Background App
+- [x] Background App
     - [x] track device location
-    - [ ] compare location to wallpapers.locations
+    - [x] compare location to wallpapers.locations
     - [x] update device wallpaper
 - [x] Device Location Integration
 	- [x] ask permission in activity
