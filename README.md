@@ -16,6 +16,8 @@ Ajol Paper is an android mobile application that allows the user to customize th
 
 - [ ] __List Empty__: We never added a view to say the wallpapers or defaults database tables are empty.
 
+- [ ] __UI__: The user interface still lacks some key improvements, many of which were suggested by the Human-Computer Interface review group. Principally, there is still no help menu, the settings activity confusingly shows a map of wallpapers, buttons to view the database, and preference toggles all in the same screen, and the modify activity's save button doesn't bring the user back to the list view.
+
 ## Tasks
 - [x] User Interface
 	- [x] main/settings layout
