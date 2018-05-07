@@ -72,7 +72,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/choose_button"
         app:layout_constraintTop_toTopOf="@+id/choose_button"
-        app:srcCompat="@android:drawable/sym_def_app_icon" />
+        app:srcCompat="@mipmap/ajolpaper_launcher" />
 
     <TextView
         android:id="@+id/radius_label"
