@@ -1,5 +1,5 @@
 # AJOL-Android-App
-Ajol Paper is an android mobile application that allows the user to customize the device's wallpaper so it changes depending on the device's location. 
+Ajol Paper is an android mobile application that allows the user to customize the device's wallpaper so it changes depending on the device's location. The source code for the project is in the Ajol Paper 2 directory (we never got around to deleting the other one).
 
 ## Known Issues
 - [ ] __Device location__: the lastKnownLocation() function that we use doesn't actually determine the device's location, but rather checks whatever position was returned by the last app on the phone that determined it. This means that if Ajol Paper is the first application opened after connecting to a network, the device's location is unknown.
